@@ -1,0 +1,25 @@
+# Instructions for AI Assistants
+
+## CRITICAL: Before ANY work
+1. Run: `make ground-pull`
+2. Read: `docs/_grounding/facts.yml`
+3. Create session: `make ground-plan`
+
+## NEVER MODIFY
+- docs/_grounding/facts.yml
+- infra/policy/intent/*.yaml
+- CODEOWNERS file
+
+## ALWAYS DO
+- Update tests when changing code
+- Run `make probe` before commits
+- Stay within declared session scope
+- Check git branch before starting
+
+## Project Context
+This is a three-node mesh network infrastructure:
+- Hetzner (hub): Always-on server
+- Laptop: Roaming workstation
+- WSL: Windows-constrained workstation
+
+Current phase: Day 1 - Establishing basic connectivity

@@ -1,0 +1,22 @@
+{
+  "modules": {
+    "infra/policy": {
+      "owner": "verlyn13",
+      "description": "Network policies and intent",
+      "protected": true
+    },
+    "infra/bootstrap": {
+      "owner": "verlyn13",
+      "description": "Node joining and initialization"
+    },
+    "infra/scripts": {
+      "owner": "verlyn13",
+      "description": "Automation scripts"
+    },
+    "docs/_grounding": {
+      "owner": "verlyn13",
+      "description": "Source of truth - DO NOT MODIFY",
+      "protected": true
+    }
+  }
+}

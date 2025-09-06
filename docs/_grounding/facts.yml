@@ -1,0 +1,43 @@
+version: 1
+project: three_node_mesh_infrastructure
+approach: platform_as_code
+last_updated: 2025-09-05
+owner: verlyn13
+
+# Immutable System Facts
+nodes:
+  hetzner:
+    hostname: docker-cx32-prod
+    public_ipv4: 91.99.101.204
+    ssh_port: 2222
+    role: [hub, headquarters, server]
+    always_on: true
+  laptop:
+    hostname: fedora-top
+    role: [workstation, roaming]
+    roaming: true
+  wsl:
+    hostname: fedora-wsl
+    windows_host: KBC-JJOHNSON47
+    role: [workstation, windows_dev_env]
+    constraints: [no_windows_admin, wsl2]
+
+network:
+  internal_domain: hq
+  mesh_subnet: 10.0.0.0/24
+  node_ips:
+    hetzner: 10.0.0.1
+    laptop: 10.0.0.2
+    wsl: 10.0.0.3
+
+security:
+  ssh_user: verlyn13
+  token_expiry: 24h
+  admin_ports: [22, 443, 8080]
+  emergency_ssh: 2222
+
+tools:
+  vpn: tailscale  # or wireguard
+  config_mgmt: ansible  # future
+  secrets: gopass
+  orchestration: systemd

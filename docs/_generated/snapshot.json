@@ -1,0 +1,21 @@
+{
+  "timestamp": "2025-09-06T08:57:39.846799",
+  "git": {
+    "head": "HEAD",
+    "branch": "main",
+    "dirty": true
+  },
+  "infrastructure": {
+    "scripts": 2,
+    "policies": 1,
+    "backups": true
+  },
+  "nodes": {
+    "configured": [
+      "hetzner",
+      "laptop",
+      "wsl"
+    ],
+    "mesh_network": "10.0.0.0/24"
+  }
+}

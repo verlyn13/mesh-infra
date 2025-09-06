@@ -1,0 +1,52 @@
+# THIS IS YOUR SOURCE OF TRUTH - VENDOR NEUTRAL
+# Agents: DO NOT modify this directly, use the generator
+
+version: 1
+metadata:
+  description: "Vendor-neutral network intent"
+  last_updated: 2025-09-05
+
+nodes:
+  hetzner:
+    fqdn: hetzner.hq
+    internal_ip: 10.0.0.1/24
+    roles: [hub, server]
+    always_on: true
+    services:
+      - ssh
+      - infisical
+    
+  laptop:
+    fqdn: laptop.hq
+    internal_ip: 10.0.0.2/24
+    roles: [workstation]
+    roaming: true
+    
+  wsl:
+    fqdn: wsl.hq
+    internal_ip: 10.0.0.3/24
+    roles: [workstation]
+    constraints: [no_host_admin, wsl2]
+
+access_policy:
+  - name: admin_full_access
+    from: admin
+    to: "*"
+    ports: "*"
+    
+  - name: workstation_to_server
+    from: role:workstation
+    to: role:server
+    ports: [22, 443, 8080]
+    
+  - name: emergency_ssh
+    from: "*"
+    to: hetzner
+    ports: [2222]
+    rate_limit: 1/minute
+
+security_invariants:
+  - admin_ports_never_public
+  - tokens_expire_24h
+  - ssh_key_only_auth
+  - default_deny_inbound

@@ -1,0 +1,18 @@
+# Network reference (Grounding)
+nodes:
+  hetzner:
+    hostname: docker-cx32-prod
+    mesh_name: hetzner-hq
+    ip: 10.0.0.1/24
+  laptop:
+    hostname: fedora-top
+    mesh_name: laptop-hq
+    ip: 10.0.0.2/24
+  wsl:
+    hostname: fedora-wsl
+    mesh_name: wsl-hq
+    ip: 10.0.0.3/24
+mesh:
+  cidr: 10.0.0.0/24
+  primary: tailscale
+  fallback: wireguard

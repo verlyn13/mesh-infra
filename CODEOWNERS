@@ -1,0 +1,4 @@
+# Protected paths - only owner can modify
+/docs/_grounding/facts.yml         @verlyn13
+/infra/policy/intent/              @verlyn13
+/docs/_grounding/module_map.json   @verlyn13

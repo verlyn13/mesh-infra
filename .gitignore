@@ -1,0 +1,30 @@
+# Secrets and keys
+*.key
+*.pem
+*.crt
+infra/backup/wg/*.key
+infra/backup/wg/*.conf
+
+# Session files (agent-specific)
+.session/session-*.yaml
+
+# Generated files
+docs/_generated/pr_manifest.json
+
+# Temporary files
+*.tmp
+*.swp
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Ansible
+*.retry
+
+# Terraform (future)
+*.tfstate
+*.tfstate.backup
+.terraform/
