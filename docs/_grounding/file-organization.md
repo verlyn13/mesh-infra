@@ -107,3 +107,60 @@ When creating new files:
 4. Update module_map.json if adding new module
 5. Add to .gitignore if contains secrets
 6. Document in relevant README
+
+## Future Directories (Phase 2+)
+
+When adding configuration management and orchestration:
+```
+├── ansible/               # Ansible playbooks (Phase 2)
+│   ├── playbooks/
+│   ├── roles/
+│   └── inventory/
+├── terraform/             # Infrastructure as Code (Future)
+│   ├── modules/
+│   └── environments/
+├── k8s/                   # Kubernetes manifests (Future)
+│   └── manifests/
+```
+
+## Agent Artifacts
+
+Agent-generated content placement:
+- Session files: `.session/session-YYYYMMDD-*.yaml`
+- Generated configs: `infra/policy/generated/`
+- Reports: `docs/_generated/`
+- Temporary work: Never commit, use `/tmp/` or `.tmp/`
+
+## External Tool Configuration
+
+Tool-specific configs in root (sparingly):
+- `.clinerules*` - CLI tool rules
+- `.claude-instructions` - Claude-specific
+- `pyproject.toml` - Python project config (when needed)
+- `.pre-commit-config.yaml` - Git hooks (when added)
+
+## Binary and Secret Files
+
+NEVER commit:
+- Private keys (`*.key`, `*.pem`)
+- Certificates (`*.crt`) unless public
+- Compiled binaries
+- Environment files with secrets (`.env`)
+- Wireguard private configs (`*.conf` with private keys)
+
+## Version Control Guidelines
+
+Branch organization:
+- `main` - Protected, stable trunk
+- `feat/*` - New features
+- `fix/*` - Bug fixes
+- `refactor/*` - Code improvements
+- `docs/*` - Documentation only
+- `test/*` - Test additions/improvements
+
+## File Size Limits
+
+- Scripts: < 500 lines (split if larger)
+- Config files: < 200 lines (modularize if larger)
+- Documentation: < 1000 lines per file
+- No binary files > 1MB (use Git LFS if needed)

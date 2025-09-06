@@ -1,5 +1,10 @@
 {
   "modules": {
+    "docs/_grounding": {
+      "owner": "verlyn13",
+      "description": "Source of truth - DO NOT MODIFY",
+      "protected": true
+    },
     "infra/policy": {
       "owner": "verlyn13",
       "description": "Network policies and intent",
@@ -11,12 +16,22 @@
     },
     "infra/scripts": {
       "owner": "verlyn13",
-      "description": "Automation scripts"
+      "description": "Infrastructure automation scripts"
     },
-    "docs/_grounding": {
+    "scripts": {
       "owner": "verlyn13",
-      "description": "Source of truth - DO NOT MODIFY",
-      "protected": true
+      "description": "Repository management tools"
+    },
+    "tests": {
+      "owner": "verlyn13",
+      "description": "Test scripts and validation"
+    },
+    ".session": {
+      "owner": "agents",
+      "description": "Agent session tracking",
+      "temporary": true
     }
-  }
+  },
+  "file_policy": "docs/_grounding/file-organization.md",
+  "version": 2
 }
