@@ -1,29 +1,44 @@
-#!/usr/bin/env bash
+#!/bin/bash
+# Test mesh network connectivity between nodes
+
 set -euo pipefail
 
-echo "== Mesh Connectivity Smoke Test =="
+echo "=== Mesh Network Connectivity Test ==="
+echo
 
-if ! command -v tailscale >/dev/null 2>&1; then
-  echo "tailscale not installed or not in PATH" >&2
-  exit 1
+# Check if Tailscale is installed
+if ! command -v tailscale &> /dev/null; then
+    echo "❌ Tailscale not installed"
+    echo "Run 'make init-day1' first"
+    exit 1
 fi
 
-echo "-- tailscale status --"
-tailscale status || true
+# Check Tailscale status
+echo "Checking Tailscale status..."
+if ! tailscale status &> /dev/null; then
+    echo "❌ Tailscale not running"
+    exit 1
+fi
 
-nodes=("hetzner-hq" "laptop-hq" "wsl-hq")
+echo "✓ Tailscale is running"
+echo
 
-echo "-- ping via tailscale (logical names) --"
-for n in "${nodes[@]}"; do
-  if tailscale ping -c 1 "$n" >/dev/null 2>&1; then
-    echo "✓ reachable: $n"
-  else
-    echo "✗ unreachable: $n"
-  fi
+# Show current node info
+echo "Current node:"
+tailscale status --self --peers=false
+
+echo
+echo "Testing connectivity to mesh nodes..."
+
+# Test each node
+for node in hetzner-hq laptop-hq wsl-hq; do
+    echo -n "Testing $node... "
+    if tailscale ping -c 1 "$node" &> /dev/null; then
+        echo "✓ reachable"
+    else
+        echo "✗ unreachable"
+    fi
 done
 
-echo "-- check routes --"
-ip route show table all | grep -E "(tailscale|ts0)" || echo "no explicit tailscale routes found"
-
-echo "✓ mesh test complete"
-
+echo
+echo "Mesh network test complete"
