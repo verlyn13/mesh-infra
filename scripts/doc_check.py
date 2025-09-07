@@ -33,8 +33,8 @@ def check_readme_links() -> None:
   readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8", errors="ignore")
   # crude regex for markdown links: [text](path)
   links = re.findall(r"\[[^\]]+\]\(([^)]+)\)", readme)
-  doc_links = [l for l in links if l.startswith("docs/") or l.startswith("infra/")]
-  missing = [l for l in doc_links if not (REPO_ROOT / l).exists()]
+  doc_links = [link for link in links if link.startswith("docs/") or link.startswith("infra/")]
+  missing = [link for link in doc_links if not (REPO_ROOT / link).exists()]
   if missing:
     fail(f"README links point to missing files: {', '.join(missing)}")
 
