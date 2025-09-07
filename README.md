@@ -20,6 +20,16 @@ Modern development happens across multiple machines, networks, and contexts. Thi
 4. **Resource Sharing**: Leverage Hetzner's always-on compute for builds, services, and storage
 5. **Escape Hatches**: Multiple fallback access methods when primary systems fail
 
+## 🚀 Deployment Status
+
+| Node | Status | Tailscale IP | Deployed |
+|------|--------|--------------|----------|
+| **Hetzner Hub** | ✅ Online | 100.84.151.58 | 2025-09-07 |
+| **Fedora Laptop** | ⏳ Pending | - | - |
+| **WSL2** | ⏳ Pending | - | - |
+
+**[View Live Network Status →](docs/NETWORK_STATUS.md)**
+
 ## 🏗️ Architecture
 
 ```
@@ -31,35 +41,36 @@ Modern development happens across multiple machines, networks, and contexts. Thi
                             ▼
                 ┌──────────────────────┐
                 │   Hetzner Server     │
-                │   (docker-cx32-prod) │
-                │   Always-On Hub      │
+                │   (hetzner-hq)       │
+                │   100.84.151.58      │ ✅ DEPLOYED
+                │   - Exit Node        │
                 │   - Services         │
-                │   - Storage          │
-                │   - Coordination     │
+                │   - Docker Networks  │
                 └──────────────────────┘
                             │
                  ┌──────────┴──────────┐
-                 │  Mesh Network       │
-                 │  (10.0.0.0/24)      │
-                 │  Tailscale/WG       │
+                 │  Tailscale Mesh     │
+                 │  100.64.0.0/10      │
+                 │  WireGuard Crypto   │
                  └──────────┬──────────┘
                             │
             ┌───────────────┴───────────────┐
             │                               │
     ┌──────────────────┐           ┌──────────────────┐
     │  Fedora Laptop   │           │   Fedora WSL2    │
-    │  (fedora-top)    │           │  (fedora-wsl)    │
+    │  (laptop-hq)     │           │  (wsl-hq)        │
     │  Roaming Device  │           │  KBC-JJOHNSON47  │
-    │  10.0.0.2        │           │  10.0.0.3        │
+    │  [Pending]       │           │  [Pending]       │
     └──────────────────┘           └──────────────────┘
 ```
 
 ### Network Design
 
-- **Primary Mesh**: Tailscale for zero-config NAT traversal
+- **Primary Mesh**: Tailscale (100.64.0.0/10 CGNAT space) ✅ ACTIVE
+- **Hub Node**: 100.84.151.58 (hetzner-hq) with exit node capability
 - **Fallback**: WireGuard with manual configuration
-- **Emergency Access**: Direct SSH on port 2222 to Hetzner
-- **Internal Domain**: `*.hq` for all mesh services
+- **Emergency Access**: Direct SSH on port 2222 to 91.99.101.204
+- **Internal Services**: Accessible via Tailscale IPs
 
 ## 🚀 Key Features
 
