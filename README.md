@@ -172,15 +172,16 @@ make test         # Verify connectivity
 
 ## 🗺️ Roadmap
 
-### ✅ Phase 1: Network Foundation (Current)
-- Mesh VPN connectivity
-- Emergency access methods
-- Basic security policies
+### ✅ Phase 1: Network Foundation (66% Complete)
+- Mesh VPN connectivity (2/3 nodes online)
+- Emergency access methods (documented and tested)
+- Basic security policies (active)
 
-### 📋 Phase 2: Configuration Management
-- Ansible playbooks
-- Automated updates
-- Service deployment
+### 🚧 Phase 2: Configuration Management (Ready to Start)
+- Ansible control node on Hetzner
+- Playbooks and roles in `ansible/`
+- GitOps workflow ready
+- [Implementation Plan →](docs/PHASE2_PLAN.md)
 
 ### 📋 Phase 3: File Synchronization
 - Syncthing setup

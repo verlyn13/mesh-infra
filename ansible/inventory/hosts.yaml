@@ -1,0 +1,48 @@
+---
+# Mesh Network Inventory
+# Uses Tailscale hostnames for addressing
+
+all:
+  vars:
+    # Common variables for all hosts
+    ansible_user: verlyn13
+    ansible_python_interpreter: auto
+    mesh_network: tailscale
+    
+  children:
+    # Hub nodes (always-on infrastructure)
+    headquarters:
+      hosts:
+        hetzner.hq:
+          ansible_host: 100.84.151.58  # Tailscale IP
+          public_ip: 91.99.101.204
+          location: germany
+          provider: hetzner
+          always_on: true
+          roles:
+            - hub
+            - control_node
+            - exit_node
+    
+    # Workstation nodes (intermittent)
+    workstations:
+      hosts:
+        laptop.hq:
+          ansible_host: 100.84.2.8  # Tailscale IP  
+          device_type: laptop
+          os: fedora
+          location: roaming
+          expected_uptime: 40
+          
+        wsl.hq:
+          ansible_host: pending  # Not yet connected
+          device_type: wsl2
+          os: fedora
+          windows_host: KBC-JJOHNSON47
+          expected_uptime: 30
+          ansible_connection: ssh  # Will use SSH when available
+      
+      vars:
+        # Workstation-specific variables
+        development_environment: true
+        gui_available: "{{ device_type != 'wsl2' }}"
