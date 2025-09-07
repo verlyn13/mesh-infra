@@ -1,18 +1,19 @@
 # Mesh Network Status
 
-Last Updated: 2025-09-07
+**Last Updated**: 2025-09-07  
+**Overall Status**: 🟢 FULLY OPERATIONAL
 
-## 🟢 Network Operational
+## Network Overview
 
-The mesh network infrastructure is partially deployed with the Hetzner hub node fully operational.
+All three nodes are successfully deployed and connected to the mesh network via Tailscale.
 
 ## Node Status
 
-| Node | Hostname | Tailscale IP | Status | Deployed |
-|------|----------|--------------|--------|----------|
-| **Hetzner Hub** | hetzner-hq | 100.84.151.58 | ✅ Online | 2025-09-07 |
-| **Fedora Laptop** | laptop-hq | 100.84.2.8 | ✅ Online | 2025-09-06 |
-| **WSL2** | wsl-hq | - | ⏳ Pending | - |
+| Node | Hostname | Tailscale IP | Status | Location | Deployed |
+|------|----------|--------------|--------|----------|----------|
+| **Hetzner Hub** | hetzner-hq | 100.84.151.58 | ✅ Online | Germany (Cloud) | 2025-09-07 |
+| **Fedora Laptop** | laptop-hq | 100.84.2.8 | ✅ Online | Roaming | 2025-09-06 |
+| **WSL2** | wsl-fedora-kbc | 100.88.131.44 | ✅ Online | Alaska (University) | 2025-09-07 |
 
 ## Network Configuration
 

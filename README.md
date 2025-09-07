@@ -26,7 +26,7 @@ Modern development happens across multiple machines, networks, and contexts. Thi
 |------|--------|--------------|----------|
 | **Hetzner Hub** | ✅ Online | 100.84.151.58 | 2025-09-07 |
 | **Fedora Laptop** | ✅ Online | 100.84.2.8 | 2025-09-06 |
-| **WSL2** | ⏳ Pending | - | - |
+| **WSL2** | ✅ Online | 100.88.131.44 | 2025-09-07 |
 
 **[View Live Network Status →](docs/NETWORK_STATUS.md)**
 
@@ -58,9 +58,9 @@ Modern development happens across multiple machines, networks, and contexts. Thi
             │                               │
     ┌──────────────────┐           ┌──────────────────┐
     │  Fedora Laptop   │           │   Fedora WSL2    │
-    │  (laptop-hq)     │           │  (wsl-hq)        │
-    │  Roaming Device  │           │  KBC-JJOHNSON47  │
-    │  [Pending]       │           │  [Pending]       │
+    │  (laptop-hq)     │           │ (wsl-fedora-kbc) │
+    │  100.84.2.8      │           │  100.88.131.44   │
+    │  ✅ DEPLOYED     │           │  ✅ DEPLOYED     │
     └──────────────────┘           └──────────────────┘
 ```
 
@@ -172,8 +172,8 @@ make test         # Verify connectivity
 
 ## 🗺️ Roadmap
 
-### ✅ Phase 1: Network Foundation (66% Complete)
-- Mesh VPN connectivity (2/3 nodes online)
+### ✅ Phase 1: Network Foundation (100% Complete)
+- Mesh VPN connectivity (3/3 nodes online)
 - Emergency access methods (documented and tested)
 - Basic security policies (active)
 

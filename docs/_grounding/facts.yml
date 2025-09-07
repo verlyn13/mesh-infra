@@ -25,12 +25,14 @@ nodes:
     status: deployed
     deployed_date: 2025-09-06
   wsl:
-    hostname: fedora-wsl
-    tailscale_hostname: wsl-hq
+    hostname: wsl-fedora-kbc
+    tailscale_hostname: wsl-fedora-kbc
     windows_host: KBC-JJOHNSON47
-    role: [workstation, windows_dev_env]
+    tailscale_ipv4: 100.88.131.44
+    role: [workstation, windows_dev_env, bridge_node]
     constraints: [no_windows_admin, wsl2]
-    status: pending
+    status: deployed
+    deployed_date: 2025-09-07
 
 network:
   internal_domain: hq
