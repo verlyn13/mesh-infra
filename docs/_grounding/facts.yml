@@ -28,11 +28,26 @@ nodes:
     hostname: wsl-fedora-kbc
     tailscale_hostname: wsl-fedora-kbc
     windows_host: KBC-JJOHNSON47
+<<<<<<< Updated upstream
     tailscale_ipv4: 100.88.131.44
     role: [workstation, windows_dev_env, bridge_node]
     constraints: [no_windows_admin, wsl2]
     status: deployed
     deployed_date: 2025-09-07
+||||||| Stash base
+    role: [workstation, windows_dev_env]
+    constraints: [no_windows_admin, wsl2]
+    status: pending
+=======
+    role: [workstation, windows_dev_env]
+    constraints: [no_windows_admin, wsl2, work_pc]
+    status: pending
+    target_deployment: 2025-09-08
+    special_requirements:
+      - tailscale_userspace_networking
+      - limited_sudo_access
+      - corporate_network_restrictions
+>>>>>>> Stashed changes
 
 network:
   internal_domain: hq
@@ -49,7 +64,27 @@ security:
   emergency_ssh: 2222
 
 tools:
-  vpn: tailscale  # or wireguard
-  config_mgmt: ansible  # future
+  vpn: tailscale
+  config_mgmt: ansible  # operational
   secrets: gopass
   orchestration: systemd
+
+phases:
+  phase1_network:
+    status: complete
+    completion_date: 2025-09-06
+    description: "Tailscale mesh network established"
+    nodes_deployed: [hetzner-hq, laptop-hq]
+    nodes_pending: [wsl-hq]
+  phase2_config:
+    status: complete
+    completion_date: 2025-09-07
+    description: "Ansible configuration management operational"
+    control_node: hetzner-hq
+    managed_nodes: [laptop-hq]
+    pending_nodes: [wsl-hq]
+  phase3_sync:
+    status: ready
+    description: "File synchronization with Syncthing"
+    target_nodes: [hetzner-hq, laptop-hq, wsl-hq]
+    wsl_considerations: "userspace_networking_mode"

@@ -6,9 +6,9 @@ echo "=== Ansible Control Node Setup ==="
 echo "This script should be run on Hetzner (hub node)"
 echo
 
-# Check if we're on Hetzner
-if [ "$(hostname)" != "docker-cx32-prod" ]; then
-    echo "Warning: This doesn't appear to be the Hetzner server."
+# Check if we're on Hetzner (best-effort, non-fatal)
+if [[ "$(hostname)" != *"hetzner"* && "$(hostname)" != *"hq"* ]]; then
+    echo "Warning: This doesn't appear to be the Hetzner server (hostname doesn't match '*hetzner*' or '*hq*')."
     read -p "Continue anyway? (y/n) " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -39,12 +39,12 @@ fi
 # Copy SSH key to laptop if reachable
 echo
 echo "Attempting to copy SSH key to laptop..."
-if tailscale ping -c 1 laptop-hq &> /dev/null; then
-    ssh-copy-id -i "$SSH_KEY.pub" verlyn13@laptop-hq || true
+if tailscale ping -c 1 laptop.hq &> /dev/null; then
+    ssh-copy-id -i "$SSH_KEY.pub" verlyn13@laptop.hq || true
     echo "✓ SSH key copied to laptop"
 else
     echo "⚠ Laptop not reachable via Tailscale. Copy key manually when available:"
-    echo "  ssh-copy-id -i $SSH_KEY.pub verlyn13@laptop-hq"
+    echo "  ssh-copy-id -i $SSH_KEY.pub verlyn13@laptop.hq"
 fi
 
 echo

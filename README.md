@@ -26,7 +26,13 @@ Modern development happens across multiple machines, networks, and contexts. Thi
 |------|--------|--------------|----------|
 | **Hetzner Hub** | ✅ Online | 100.84.151.58 | 2025-09-07 |
 | **Fedora Laptop** | ✅ Online | 100.84.2.8 | 2025-09-06 |
+<<<<<<< Updated upstream
 | **WSL2** | ✅ Online | 100.88.131.44 | 2025-09-07 |
+||||||| Stash base
+| **WSL2** | ⏳ Pending | - | - |
+=======
+| **WSL2** | ⏳ Deploying | TBD | 2025-09-08 |
+>>>>>>> Stashed changes
 
 **[View Live Network Status →](docs/NETWORK_STATUS.md)**
 
@@ -172,18 +178,26 @@ make test         # Verify connectivity
 
 ## 🗺️ Roadmap
 
+<<<<<<< Updated upstream
 ### ✅ Phase 1: Network Foundation (100% Complete)
 - Mesh VPN connectivity (3/3 nodes online)
+||||||| Stash base
+### ✅ Phase 1: Network Foundation (66% Complete)
+- Mesh VPN connectivity (2/3 nodes online)
+=======
+### ✅ Phase 1: Network Foundation (Complete)
+- Mesh VPN connectivity (2/3 nodes online, 3rd deploying)
+>>>>>>> Stashed changes
 - Emergency access methods (documented and tested)
 - Basic security policies (active)
 
-### 🚧 Phase 2: Configuration Management (Ready to Start)
-- Ansible control node on Hetzner
-- Playbooks and roles in `ansible/`
-- GitOps workflow ready
-- [Implementation Plan →](docs/PHASE2_PLAN.md)
+### ✅ Phase 2: Configuration Management (Complete)
+- Ansible control node operational on Hetzner
+- Baseline playbooks and roles deployed
+- GitOps workflow active across 2/2 nodes
+- [Implementation Details →](docs/PHASE2_PLAN.md)
 
-### 📋 Phase 3: File Synchronization
+### 🚧 Phase 3: File Synchronization (Ready to Start)
 - Syncthing setup
 - Selective sync rules
 - Backup strategies
@@ -205,6 +219,11 @@ make help           # Show all commands
 make probe          # Generate repository snapshot
 make escape-hatch   # Show emergency access methods
 make test           # Test mesh connectivity
+# Phase 2: Ansible (operational from any node)
+make ansible-setup          # One-time setup (completed)
+make ansible-ping           # Test managed node connectivity
+make ansible-site           # Apply baseline configuration
+make ansible-install-tools  # Deploy development tools
 ```
 
 ## 🚨 Emergency Access
@@ -219,6 +238,8 @@ If the mesh network fails:
 
 - [Day 1 Setup](docs/_grounding/Day1.md) - Initial bootstrap procedures
 - [Network Reference](docs/_grounding/network-reference.yaml) - System specifications
+- [Node Addition Guide](docs/NODE_ADDITION_GUIDE.md) - Procedures for adding new nodes
+- [Phase 3 Readiness](docs/PHASE3_READINESS.md) - File synchronization planning
 - [Escape Hatches](infra/ESCAPE_HATCHES.md) - Emergency procedures
 - [Architecture Decisions](docs/_grounding/adr/) - Design rationale
 
@@ -243,9 +264,9 @@ MIT - This is personal infrastructure code shared for educational purposes.
 
 ---
 
-**Project Status**: 🟢 Active Development (Day 1 Phase)  
+**Project Status**: 🟢 Phase 2 Complete - Configuration Management Operational  
 **Primary Contact**: verlyn13  
-**Last Updated**: 2025-09-05
+**Last Updated**: 2025-09-07
 ```
 
 This README:

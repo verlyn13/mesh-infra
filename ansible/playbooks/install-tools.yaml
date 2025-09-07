@@ -1,0 +1,25 @@
+---
+- name: Install development tools on all nodes
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install essential tools
+      package:
+        name:
+          - tmux
+          - htop
+          - ripgrep
+          - fzf
+          - neovim
+        state: present
+
+    - name: Set up tmux config
+      copy:
+        content: |
+          set -g mouse on
+          set -g base-index 1
+          bind r source-file ~/.tmux.conf
+        dest: "/home/{{ ansible_user }}/.tmux.conf"
+        owner: "{{ ansible_user }}"
+        mode: "0644"
+

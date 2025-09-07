@@ -1,4 +1,4 @@
-.PHONY: help ground-pull ground-plan probe init-day1 escape-hatch test lint doc-check policy-check policy-generate
+.PHONY: help ground-pull ground-plan probe init-day1 escape-hatch test lint doc-check policy-check policy-generate ansible-setup ansible-ping ansible-site ansible-install-tools
 
 help:
 	@echo "Mesh Infrastructure Management"
@@ -11,6 +11,10 @@ help:
 	@echo "  make doc-check    - Validate docs structure and links"
 	@echo "  make policy-check - Validate policy intent and generator"
 	@echo "  make policy-generate - Generate vendor-specific configs"
+	@echo "  make ansible-setup   - Run Ansible setup on control node"
+	@echo "  make ansible-ping    - Ping all hosts via Ansible"
+	@echo "  make ansible-site    - Apply site playbook"
+	@echo "  make ansible-install-tools - Install dev tools everywhere"
 
 ground-pull:
 	@python3 scripts/ground.py pull
@@ -48,3 +52,16 @@ policy-check:
 
 policy-generate:
 	@bash infra/policy/intent/generate.sh
+
+# --- Ansible helpers ---
+ansible-setup:
+	@cd ansible && ./scripts/setup.sh
+
+ansible-ping:
+	@cd ansible && ansible all -m ping
+
+ansible-site:
+	@cd ansible && ansible-playbook playbooks/site.yaml
+
+ansible-install-tools:
+	@cd ansible && ansible-playbook playbooks/install-tools.yaml

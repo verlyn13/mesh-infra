@@ -16,7 +16,7 @@ ansible/
 │   └── group_vars/      # Group variables
 ├── playbooks/           # Playbooks
 │   ├── site.yaml       # Main playbook
-│   └── bootstrap.yaml  # New node setup
+│   └── install-tools.yaml  # Minimal useful setup
 ├── roles/              # Ansible roles
 │   ├── common/         # Baseline configuration
 │   ├── tailscale/      # Mesh network management
@@ -24,7 +24,7 @@ ansible/
 │   └── syncthing/      # File sync (Phase 3)
 └── scripts/            # Helper scripts
     ├── setup.sh        # Initial setup on Hetzner
-    └── deploy.sh       # Run playbooks
+    └── deploy.sh       # Run playbooks (wrapper)
 ```
 
 ## 🚀 Quick Start
@@ -32,8 +32,8 @@ ansible/
 ### On Hetzner (Control Node)
 
 ```bash
-# One-time setup
-cd /opt/mesh-infra/ansible
+# One-time setup (on Hetzner)
+cd mesh-infra/ansible
 ./scripts/setup.sh
 
 # Deploy configuration to all nodes
@@ -44,6 +44,15 @@ ansible-playbook playbooks/site.yaml
 
 # Test connectivity
 ansible all -m ping
+
+### From repo root using Makefile
+
+```bash
+make ansible-setup          # Run setup script on control node
+make ansible-ping           # Ping all nodes via Ansible
+make ansible-site           # Run main site playbook
+make ansible-install-tools  # Install dev tools everywhere
+```
 ```
 
 ## 📝 Inventory

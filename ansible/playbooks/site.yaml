@@ -1,0 +1,10 @@
+---
+# Main site playbook: baseline + mesh
+- name: Configure all nodes
+  hosts: all
+  become: yes
+  roles:
+    - common
+    - security
+    - tailscale
+
