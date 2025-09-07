@@ -1,0 +1,74 @@
+---
+# Syncthing Ansible Role Default Variables
+
+# Package management
+syncthing_package_name: syncthing
+syncthing_package_state: present
+
+# User configuration
+syncthing_user: verlyn13
+syncthing_group: verlyn13
+syncthing_home: "/home/{{ syncthing_user }}"
+
+# Service configuration
+syncthing_service_name: "syncthing@{{ syncthing_user }}"
+syncthing_service_state: started
+syncthing_service_enabled: true
+
+# Network configuration
+syncthing_listen_address: "0.0.0.0:22000"
+syncthing_gui_address: "127.0.0.1:8384"
+syncthing_gui_enabled: true
+syncthing_gui_tls: false
+
+# Security settings
+syncthing_gui_api_key: "{{ ansible_machine_id }}"
+syncthing_device_name: "{{ inventory_hostname }}"
+
+# Sync directories
+syncthing_config_dir: "{{ syncthing_home }}/.config/syncthing"
+syncthing_data_dir: "{{ syncthing_home }}/sync"
+
+# Default sync folders structure
+syncthing_base_folders:
+  development:
+    path: "{{ syncthing_data_dir }}/development"
+    type: "sendreceive"
+    description: "Development projects - 3-way sync"
+    
+  documents:
+    path: "{{ syncthing_data_dir }}/documents"
+    type: "sendonly"
+    description: "Personal documents - backup to hub"
+    
+  config:
+    path: "{{ syncthing_data_dir }}/config"
+    type: "sendreceive" 
+    description: "Configuration files - selective sync"
+
+# Node-specific folder configurations (overridden in host_vars)
+syncthing_folders: "{{ syncthing_base_folders }}"
+
+# Firewall configuration
+syncthing_firewall_enabled: false  # Rely on Tailscale mesh security
+syncthing_ports:
+  - 22000  # Sync protocol
+  - 21027  # Discovery
+
+# Performance tuning
+syncthing_max_concurrent_scans: 2
+syncthing_max_file_change_rate: 100
+
+# WSL2-specific settings
+syncthing_wsl_mode: false
+syncthing_systemd_user_mode: "{{ syncthing_wsl_mode or (ansible_facts['system'] == 'Linux' and ansible_facts['kernel'] is search('WSL')) }}"
+
+# Backup and versioning
+syncthing_versioning_enabled: true
+syncthing_versioning_type: "simple"
+syncthing_versioning_params:
+  keep: "10"
+
+# Health check configuration
+syncthing_health_check_enabled: true
+syncthing_health_check_url: "http://{{ syncthing_gui_address }}/rest/system/status"

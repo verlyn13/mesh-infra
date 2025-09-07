@@ -1,0 +1,79 @@
+---
+# Syncthing Package Installation
+
+- name: Check if Syncthing is already installed
+  package_facts:
+    manager: auto
+  tags: [syncthing, install]
+
+- name: Install Syncthing repository (Fedora/RHEL/CentOS)
+  get_url:
+    url: "https://download.opensuse.org/repositories/home:/kozec/Fedora_{{ ansible_distribution_major_version }}/home:kozec.repo"
+    dest: "/etc/yum.repos.d/syncthing.repo"
+    mode: '0644'
+  become: yes
+  when: ansible_os_family == "RedHat" and syncthing_package_name not in ansible_facts.packages
+  tags: [syncthing, install, repo]
+
+- name: Install Syncthing repository key (Fedora/RHEL/CentOS)
+  rpm_key:
+    state: present
+    key: "https://download.opensuse.org/repositories/home:/kozec/Fedora_{{ ansible_distribution_major_version }}/repodata/repomd.xml.key"
+  become: yes
+  when: ansible_os_family == "RedHat" and syncthing_package_name not in ansible_facts.packages
+  tags: [syncthing, install, repo]
+
+- name: Install Syncthing repository (Debian/Ubuntu)
+  block:
+    - name: Add Syncthing repository key (Debian/Ubuntu)
+      get_url:
+        url: "https://syncthing.net/release-key.txt"
+        dest: /tmp/syncthing-release-key.txt
+        mode: '0644'
+      
+    - name: Import Syncthing GPG key (Debian/Ubuntu)
+      apt_key:
+        file: /tmp/syncthing-release-key.txt
+        state: present
+        
+    - name: Add Syncthing repository (Debian/Ubuntu)
+      apt_repository:
+        repo: "deb https://apt.syncthing.net/ syncthing stable"
+        state: present
+        
+    - name: Update package cache (Debian/Ubuntu)
+      apt:
+        update_cache: yes
+  become: yes
+  when: ansible_os_family == "Debian" and syncthing_package_name not in ansible_facts.packages
+  tags: [syncthing, install, repo]
+
+- name: Install Syncthing package
+  package:
+    name: "{{ syncthing_package_name }}"
+    state: "{{ syncthing_package_state }}"
+  become: yes
+  notify: restart syncthing
+  tags: [syncthing, install]
+
+- name: Verify Syncthing installation
+  command: syncthing --version
+  register: syncthing_version
+  changed_when: false
+  tags: [syncthing, install, verify]
+
+- name: Display Syncthing version
+  debug:
+    msg: "Syncthing {{ syncthing_version.stdout_lines[0] }} installed successfully"
+  tags: [syncthing, install, info]
+
+- name: Create Syncthing user (if different from ansible user)
+  user:
+    name: "{{ syncthing_user }}"
+    group: "{{ syncthing_group }}"
+    home: "{{ syncthing_home }}"
+    shell: /bin/bash
+    create_home: yes
+  become: yes
+  when: syncthing_user != ansible_user_id
+  tags: [syncthing, install, user]

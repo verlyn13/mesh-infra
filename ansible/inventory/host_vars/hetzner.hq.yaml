@@ -1,0 +1,51 @@
+---
+# Hetzner Hub Node - Syncthing Configuration
+# Role: Central sync hub and backup storage
+
+# Node-specific Syncthing settings
+syncthing_device_name: "hetzner-hub"
+syncthing_gui_address: "0.0.0.0:8384"  # Allow external access (secured by Tailscale)
+
+# Storage configuration (large disk for backups)
+syncthing_data_dir: "/home/verlyn13/sync"
+
+# Sync folder configuration
+syncthing_folders:
+  development:
+    path: "/home/verlyn13/sync/development"
+    type: "sendreceive"
+    description: "Development projects - 3-way bidirectional sync"
+    rescan_interval: 3600
+    
+  documents:
+    path: "/home/verlyn13/sync/documents"
+    type: "receiveonly"  # Backup hub - receives from other nodes
+    description: "Document backup from all nodes"
+    rescan_interval: 1800
+    
+  config:
+    path: "/home/verlyn13/sync/config"
+    type: "sendreceive"
+    description: "Configuration files - selective sync"
+    rescan_interval: 7200
+    
+  work:
+    path: "/home/verlyn13/sync/work"
+    type: "sendreceive" 
+    description: "Work content - WSL ↔ Hetzner only"
+    rescan_interval: 1800
+
+# Enhanced versioning for backup hub
+syncthing_versioning_enabled: true
+syncthing_versioning_type: "staggered"
+syncthing_versioning_params:
+  maxAge: "365"  # Keep versions for 1 year
+  cleanInterval: "3600"
+  versionsPath: "/home/verlyn13/sync/.versions"
+
+# Performance settings (server-class hardware)
+syncthing_max_concurrent_scans: 4
+syncthing_max_file_change_rate: 1000
+
+# Service configuration
+syncthing_systemd_user_mode: false  # Use system service on server

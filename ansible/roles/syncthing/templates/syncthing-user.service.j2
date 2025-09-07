@@ -1,0 +1,32 @@
+[Unit]
+Description=Syncthing - Open Source Continuous File Synchronization for %i
+Documentation=man:syncthing(1)
+After=network.target
+StartLimitIntervalSec=60
+StartLimitBurst=4
+
+[Service]
+User={{ syncthing_user }}
+ExecStart=syncthing serve --no-browser --no-restart --logflags=0 --config="{{ syncthing_config_dir }}"
+Restart=on-failure
+RestartSec=5
+SuccessExitStatus=3 4
+RestartForceExitStatus=3 4
+PrivateDevices=true
+PrivateNetwork=false
+ProtectHostname=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ProtectKernelTunables=true
+ProtectSystem=strict
+ReadWritePaths={{ syncthing_config_dir }} {{ syncthing_data_dir }}
+RemainAfterExit=false
+RuntimeDirectory=syncthing-{{ syncthing_user }}
+RuntimeDirectoryMode=0755
+# WSL2 compatibility - reduce security restrictions
+NoNewPrivileges=false
+LockPersonality=false
+
+[Install]
+WantedBy=default.target

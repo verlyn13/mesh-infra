@@ -1,0 +1,62 @@
+---
+# Syncthing Installation and Configuration
+
+- name: Include OS-specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}.yaml"
+    - "{{ ansible_os_family }}.yaml" 
+    - "default.yaml"
+  tags: [syncthing, config]
+
+- name: Install Syncthing package
+  include_tasks: install.yaml
+  tags: [syncthing, install]
+
+- name: Configure Syncthing service
+  include_tasks: configure.yaml
+  tags: [syncthing, config]
+
+- name: Create sync folders
+  include_tasks: folders.yaml
+  tags: [syncthing, folders]
+
+- name: Configure firewall (if needed)
+  include_tasks: firewall.yaml
+  when: syncthing_firewall_enabled
+  tags: [syncthing, firewall]
+
+- name: Start and enable Syncthing service
+  systemd:
+    name: "{{ syncthing_service_name }}"
+    state: "{{ syncthing_service_state }}"
+    enabled: "{{ syncthing_service_enabled }}"
+    scope: "{{ 'user' if syncthing_systemd_user_mode else 'system' }}"
+  become: "{{ not syncthing_systemd_user_mode }}"
+  become_user: "{{ syncthing_user if syncthing_systemd_user_mode else omit }}"
+  tags: [syncthing, service]
+
+- name: Wait for Syncthing API to be available
+  uri:
+    url: "{{ syncthing_health_check_url }}"
+    method: GET
+    headers:
+      X-API-Key: "{{ syncthing_gui_api_key }}"
+    status_code: 200
+  register: syncthing_api_check
+  until: syncthing_api_check.status == 200
+  retries: 30
+  delay: 2
+  when: syncthing_health_check_enabled
+  tags: [syncthing, verify]
+
+- name: Display Syncthing service status
+  debug:
+    msg: |
+      Syncthing installation complete on {{ inventory_hostname }}
+      - Service: {{ syncthing_service_name }}
+      - GUI: http://{{ syncthing_gui_address }}
+      - Config: {{ syncthing_config_dir }}
+      - Data: {{ syncthing_data_dir }}
+      - WSL Mode: {{ syncthing_systemd_user_mode }}
+  tags: [syncthing, info]

@@ -1,4 +1,4 @@
-.PHONY: help ground-pull ground-plan probe init-day1 escape-hatch test lint doc-check policy-check policy-generate ansible-setup ansible-ping ansible-site ansible-install-tools
+.PHONY: help ground-pull ground-plan probe init-day1 escape-hatch test lint doc-check policy-check policy-generate ansible-setup ansible-ping ansible-site ansible-install-tools syncthing-deploy syncthing-status
 
 help:
 	@echo "Mesh Infrastructure Management"
@@ -15,6 +15,8 @@ help:
 	@echo "  make ansible-ping    - Ping all hosts via Ansible"
 	@echo "  make ansible-site    - Apply site playbook"
 	@echo "  make ansible-install-tools - Install dev tools everywhere"
+	@echo "  make syncthing-deploy - Deploy Syncthing file sync"
+	@echo "  make syncthing-status - Check Syncthing status on all nodes"
 
 ground-pull:
 	@python3 scripts/ground.py pull
@@ -65,3 +67,10 @@ ansible-site:
 
 ansible-install-tools:
 	@cd ansible && ansible-playbook playbooks/install-tools.yaml
+
+# --- Phase 3: Syncthing File Sync ---
+syncthing-deploy:
+	@cd ansible && ansible-playbook playbooks/syncthing.yaml
+
+syncthing-status:
+	@cd ansible && ansible all -m shell -a 'systemctl --user status syncthing || systemctl status syncthing@verlyn13'

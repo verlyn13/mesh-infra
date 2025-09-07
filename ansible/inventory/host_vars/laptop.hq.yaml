@@ -1,0 +1,50 @@
+---
+# Laptop Mobile Node - Syncthing Configuration  
+# Role: Primary development workstation with selective sync
+
+# Node-specific Syncthing settings
+syncthing_device_name: "fedora-laptop"
+syncthing_gui_address: "127.0.0.1:8384"  # Local access only (mobile device)
+
+# Storage configuration (limited local storage)
+syncthing_data_dir: "/home/verlyn13/sync"
+
+# Sync folder configuration - optimized for mobile use
+syncthing_folders:
+  development:
+    path: "/home/verlyn13/sync/development"
+    type: "sendreceive"
+    description: "Active development projects"
+    rescan_interval: 1800  # More frequent for active development
+    
+  documents:
+    path: "/home/verlyn13/sync/documents"
+    type: "sendonly"  # Send to backup hub, don't store everything locally
+    description: "Personal documents - backed up to Hetzner"
+    rescan_interval: 3600
+    
+  config:
+    path: "/home/verlyn13/sync/config"
+    type: "sendreceive"
+    description: "Dotfiles and configurations"
+    rescan_interval: 3600
+
+# Note: No 'work' folder - laptop doesn't sync work content
+# This maintains work/personal separation
+
+# Conservative versioning for mobile device
+syncthing_versioning_enabled: true
+syncthing_versioning_type: "simple"
+syncthing_versioning_params:
+  keep: "5"  # Keep only 5 versions to save space
+
+# Performance settings (mobile device optimization)
+syncthing_max_concurrent_scans: 2  # Conservative for battery life
+syncthing_max_file_change_rate: 50
+
+# Mobile-specific settings
+syncthing_systemd_user_mode: false  # Use system service
+syncthing_mobile_optimizations:
+  - limit_bandwidth_on_battery: true
+  - pause_on_metered_connection: true
+  - reduce_scanning_when_idle: true

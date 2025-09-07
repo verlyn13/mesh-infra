@@ -1,0 +1,76 @@
+# {{ item.key | title }} Sync Folder
+
+**Syncthing Folder**: `{{ item.key }}`  
+**Path**: `{{ item.value.path }}`  
+**Type**: `{{ item.value.type }}`  
+**Description**: {{ item.value.description }}
+
+## Sync Configuration
+
+- **Folder ID**: `{{ item.key }}`
+- **Sync Mode**: `{{ item.value.type }}`
+- **Rescan Interval**: {{ item.value.rescan_interval | default('3600') }} seconds
+{% if syncthing_versioning_enabled %}
+- **Versioning**: {{ syncthing_versioning_type }} ({{ syncthing_versioning_params.keep | default('10') }} versions)
+{% endif %}
+
+## Participating Nodes
+
+This folder is synchronized between:
+{% if item.key == 'development' %}
+- **hetzner.hq**: Central development hub
+- **laptop.hq**: Primary development workstation  
+- **wsl.hq**: Work development environment
+{% elif item.key == 'documents' %}
+- **laptop.hq**: Source (send-only)
+- **hetzner.hq**: Backup destination (receive-only)
+{% elif item.key == 'work' %}
+- **wsl.hq**: Work environment
+- **hetzner.hq**: Work backup and sharing
+{% else %}
+- All configured nodes in mesh network
+{% endif %}
+
+## Usage Guidelines
+
+{% if item.key == 'development' %}
+### Development Folder
+- Store active development projects
+- Shared tools and utilities
+- Collaborative coding projects
+- **Avoid**: Large binary files, build artifacts, node_modules
+{% elif item.key == 'documents' %}
+### Documents Folder  
+- Personal documents and files
+- Reference materials
+- Important papers and archives
+- **Backup Strategy**: Automatically backed up to Hetzner
+{% elif item.key == 'config' %}
+### Configuration Folder
+- Dotfiles and shell configurations
+- Editor settings and themes
+- Tool configurations
+- **Note**: Sensitive configs are excluded via .stignore
+{% elif item.key == 'work' %}
+### Work Folder
+- Work-related projects and files
+- Corporate-appropriate content only
+- **Boundary**: WSL ↔ Hetzner only (not synced to personal laptop)
+{% endif %}
+
+## Conflict Resolution
+
+Syncthing automatically handles file conflicts by:
+1. Keeping the most recent version as the main file
+2. Creating `.sync-conflict` files for conflicts
+3. Review and resolve conflicts manually when they occur
+
+## Monitoring
+
+- **Web UI**: http://127.0.0.1:8384
+- **Status Check**: `systemctl --user status syncthing`
+- **Logs**: `journalctl --user -u syncthing -f`
+
+---
+*This folder is managed by mesh-infra Ansible automation*  
+*Last generated: {{ ansible_date_time.iso8601 }}*

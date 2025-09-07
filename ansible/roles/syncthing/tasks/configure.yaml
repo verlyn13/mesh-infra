@@ -1,0 +1,97 @@
+---
+# Syncthing Configuration
+
+- name: Create Syncthing config directory
+  file:
+    path: "{{ syncthing_config_dir }}"
+    state: directory
+    owner: "{{ syncthing_user }}"
+    group: "{{ syncthing_group }}"
+    mode: '0755'
+  become: yes
+  tags: [syncthing, config]
+
+- name: Create Syncthing data directory
+  file:
+    path: "{{ syncthing_data_dir }}"
+    state: directory
+    owner: "{{ syncthing_user }}"
+    group: "{{ syncthing_group }}"
+    mode: '0755'
+  become: yes
+  tags: [syncthing, config]
+
+- name: Generate initial Syncthing configuration
+  command: >
+    syncthing --generate="{{ syncthing_config_dir }}"
+  become_user: "{{ syncthing_user }}"
+  become: yes
+  args:
+    creates: "{{ syncthing_config_dir }}/config.xml"
+  tags: [syncthing, config]
+
+- name: Get Syncthing device ID
+  command: >
+    syncthing --device-id --config="{{ syncthing_config_dir }}"
+  become_user: "{{ syncthing_user }}"
+  become: yes
+  register: syncthing_device_id
+  changed_when: false
+  tags: [syncthing, config]
+
+- name: Store device ID fact
+  set_fact:
+    syncthing_node_device_id: "{{ syncthing_device_id.stdout.strip() }}"
+  tags: [syncthing, config]
+
+- name: Generate Syncthing configuration file
+  template:
+    src: config.xml.j2
+    dest: "{{ syncthing_config_dir }}/config.xml"
+    owner: "{{ syncthing_user }}"
+    group: "{{ syncthing_group }}"
+    mode: '0600'
+    backup: yes
+  become: yes
+  notify: restart syncthing
+  tags: [syncthing, config]
+
+- name: Create systemd service file for user mode (WSL2 compatibility)
+  template:
+    src: syncthing-user.service.j2
+    dest: "{{ syncthing_home }}/.config/systemd/user/syncthing.service"
+    owner: "{{ syncthing_user }}"
+    group: "{{ syncthing_group }}"
+    mode: '0644'
+  become: yes
+  when: syncthing_systemd_user_mode
+  notify: reload systemd user
+  tags: [syncthing, config, service]
+
+- name: Enable lingering for user (WSL2 compatibility)
+  command: loginctl enable-linger "{{ syncthing_user }}"
+  become: yes
+  when: syncthing_systemd_user_mode
+  changed_when: false
+  tags: [syncthing, config, service]
+
+- name: Create Syncthing startup script (WSL2 fallback)
+  template:
+    src: start-syncthing.sh.j2
+    dest: "{{ syncthing_home }}/bin/start-syncthing.sh"
+    owner: "{{ syncthing_user }}"
+    group: "{{ syncthing_group }}"
+    mode: '0755'
+  become: yes
+  when: syncthing_wsl_mode
+  tags: [syncthing, config, wsl]
+
+- name: Display device information
+  debug:
+    msg: |
+      Syncthing device configured:
+      - Node: {{ inventory_hostname }}
+      - Device ID: {{ syncthing_node_device_id }}
+      - Device Name: {{ syncthing_device_name }}
+      - GUI Address: {{ syncthing_gui_address }}
+  tags: [syncthing, config, info]

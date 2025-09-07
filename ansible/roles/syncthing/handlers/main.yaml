@@ -1,0 +1,39 @@
+---
+# Syncthing Service Handlers
+
+- name: restart syncthing
+  systemd:
+    name: "{{ syncthing_service_name }}"
+    state: restarted
+    scope: "{{ 'user' if syncthing_systemd_user_mode else 'system' }}"
+  become: "{{ not syncthing_systemd_user_mode }}"
+  become_user: "{{ syncthing_user if syncthing_systemd_user_mode else omit }}"
+
+- name: reload syncthing
+  systemd:
+    name: "{{ syncthing_service_name }}"
+    state: reloaded
+    scope: "{{ 'user' if syncthing_systemd_user_mode else 'system' }}"
+  become: "{{ not syncthing_systemd_user_mode }}"
+  become_user: "{{ syncthing_user if syncthing_systemd_user_mode else omit }}"
+
+- name: reload systemd user
+  systemd:
+    daemon_reload: yes
+    scope: user
+  become_user: "{{ syncthing_user }}"
+  become: yes
+
+- name: reload firewalld
+  service:
+    name: firewalld
+    state: reloaded
+  become: yes
+  when: ansible_os_family == "RedHat"
+
+- name: reload ufw
+  service:
+    name: ufw
+    state: reloaded
+  become: yes
+  when: ansible_os_family == "Debian"

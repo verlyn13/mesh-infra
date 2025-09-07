@@ -1,0 +1,62 @@
+---
+# WSL2 Work Node - Syncthing Configuration
+# Role: Work environment with corporate constraints
+
+# Node-specific Syncthing settings  
+syncthing_device_name: "wsl-fedora-kbc"
+syncthing_gui_address: "127.0.0.1:8384"  # Local access only (corporate environment)
+
+# WSL2-specific configuration
+syncthing_wsl_mode: true
+syncthing_systemd_user_mode: true  # Use user mode for WSL2 compatibility
+
+# Storage configuration (corporate workstation)
+syncthing_data_dir: "/home/verlyn13/sync"
+
+# Sync folder configuration - work-focused
+syncthing_folders:
+  development:
+    path: "/home/verlyn13/sync/development"
+    type: "sendreceive"
+    description: "Shared development tools and projects"
+    rescan_interval: 1800
+    
+  work:
+    path: "/home/verlyn13/sync/work" 
+    type: "sendreceive"
+    description: "Work projects - WSL ↔ Hetzner only" 
+    rescan_interval: 900  # Frequent sync for active work
+    
+  config:
+    path: "/home/verlyn13/sync/config"
+    type: "sendreceive"
+    description: "Work-appropriate configurations"
+    rescan_interval: 3600
+
+# Note: No 'documents' folder - maintains work/personal separation
+# Work content stays within WSL ↔ Hetzner boundary
+
+# Minimal versioning (space-constrained)
+syncthing_versioning_enabled: true
+syncthing_versioning_type: "simple"
+syncthing_versioning_params:
+  keep: "3"  # Minimal versions for space efficiency
+
+# Performance settings (WSL2 constraints)
+syncthing_max_concurrent_scans: 1  # Conservative for WSL2
+syncthing_max_file_change_rate: 25
+
+# WSL2-specific optimizations
+syncthing_wsl_optimizations:
+  - userspace_networking: true
+  - reduced_file_watching: true
+  - manual_service_start: true  # May need manual start if systemd issues
+  - corporate_firewall_mode: true
+
+# Service configuration for WSL2
+syncthing_service_name: "syncthing"  # User service, not @user
+syncthing_service_enabled: true
+
+# Custom startup script for WSL2 compatibility
+syncthing_custom_startup: true
+syncthing_startup_script_path: "/home/verlyn13/bin/start-syncthing.sh"

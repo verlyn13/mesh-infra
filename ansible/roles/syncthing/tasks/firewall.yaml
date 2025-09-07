@@ -1,0 +1,97 @@
+---
+# Syncthing Firewall Configuration
+
+- name: Install firewall management tools
+  package:
+    name: "{{ firewall_package }}"
+    state: present
+  become: yes
+  vars:
+    firewall_package: >-
+      {%- if ansible_os_family == "RedHat" -%}
+      firewalld
+      {%- elif ansible_os_family == "Debian" -%}
+      ufw
+      {%- else -%}
+      iptables
+      {%- endif -%}
+  when: syncthing_firewall_enabled
+  tags: [syncthing, firewall]
+
+- name: Configure firewall for Syncthing (firewalld - RHEL/Fedora)
+  firewalld:
+    port: "{{ item }}/tcp"
+    permanent: yes
+    state: enabled
+    immediate: yes
+  become: yes
+  loop: "{{ syncthing_ports }}"
+  when: >
+    syncthing_firewall_enabled and
+    ansible_os_family == "RedHat"
+  notify: reload firewalld
+  tags: [syncthing, firewall]
+
+- name: Configure firewall for Syncthing (ufw - Ubuntu/Debian)
+  ufw:
+    rule: allow
+    port: "{{ item | string }}"
+    proto: tcp
+  become: yes
+  loop: "{{ syncthing_ports }}"
+  when: >
+    syncthing_firewall_enabled and
+    ansible_os_family == "Debian"
+  tags: [syncthing, firewall]
+
+- name: Configure firewall for Syncthing (iptables - fallback)
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: "{{ item }}"
+    jump: ACCEPT
+    state: present
+  become: yes
+  loop: "{{ syncthing_ports }}"
+  when: >
+    syncthing_firewall_enabled and
+    ansible_os_family not in ["RedHat", "Debian"]
+  tags: [syncthing, firewall]
+
+- name: Allow Syncthing discovery (UDP 21027)
+  firewalld:
+    port: "21027/udp"
+    permanent: yes
+    state: enabled
+    immediate: yes
+  become: yes
+  when: >
+    syncthing_firewall_enabled and
+    ansible_os_family == "RedHat"
+  tags: [syncthing, firewall]
+
+- name: Allow Syncthing discovery (UDP 21027 - ufw)
+  ufw:
+    rule: allow
+    port: "21027"
+    proto: udp
+  become: yes
+  when: >
+    syncthing_firewall_enabled and
+    ansible_os_family == "Debian"
+  tags: [syncthing, firewall]
+
+- name: Display firewall configuration notice
+  debug:
+    msg: |
+      {% if syncthing_firewall_enabled %}
+      Firewall configured for Syncthing:
+      - TCP ports: {{ syncthing_ports | join(', ') }}
+      - UDP port: 21027 (discovery)
+      - Method: {{ ansible_os_family }} firewall tools
+      {% else %}
+      Firewall configuration skipped (using Tailscale mesh security)
+      - All traffic via encrypted Tailscale tunnels
+      - No external port exposure required
+      {% endif %}
+  tags: [syncthing, firewall, info]

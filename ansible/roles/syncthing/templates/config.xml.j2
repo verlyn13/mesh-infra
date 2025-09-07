@@ -1,0 +1,170 @@
+<configuration version="37">
+    <folder id="development" label="Development" path="{{ syncthing_data_dir }}/development" type="sendreceive" rescanIntervalS="3600" fsWatcherEnabled="true" fsWatcherDelayS="10" ignorePerms="false" autoNormalize="true">
+        <filesystemType>basic</filesystemType>
+        <device id="{{ hostvars['hetzner.hq']['syncthing_node_device_id'] | default('HETZNER-DEVICE-ID') }}" introducedBy=""></device>
+        <device id="{{ hostvars['laptop.hq']['syncthing_node_device_id'] | default('LAPTOP-DEVICE-ID') }}" introducedBy=""></device>
+        <device id="{{ hostvars['wsl.hq']['syncthing_node_device_id'] | default('WSL-DEVICE-ID') }}" introducedBy=""></device>
+        <minDiskFree unit="%">1</minDiskFree>
+        <versioning>
+            <cleanupIntervalS>3600</cleanupIntervalS>
+            <fsPath></fsPath>
+            <fsType>basic</fsType>
+            {% if syncthing_versioning_enabled %}
+            <type>{{ syncthing_versioning_type }}</type>
+            <params>
+                {% for key, value in syncthing_versioning_params.items() %}
+                <{{ key }}>{{ value }}</{{ key }}>
+                {% endfor %}
+            </params>
+            {% endif %}
+        </versioning>
+        <copiers>0</copiers>
+        <pullerMaxPendingKiB>0</pullerMaxPendingKiB>
+        <hashers>0</hashers>
+        <order>random</order>
+        <ignoreDelete>false</ignoreDelete>
+        <scanProgressIntervalS>0</scanProgressIntervalS>
+        <pullerPauseS>0</pullerPauseS>
+        <maxConflicts>10</maxConflicts>
+        <disableSparseFiles>false</disableSparseFiles>
+        <disableTempIndexes>false</disableTempIndexes>
+        <paused>false</paused>
+        <weakHashThresholdPct>25</weakHashThresholdPct>
+        <markerName>.stfolder</markerName>
+        <copyOwnershipFromParent>false</copyOwnershipFromParent>
+        <modTimeWindowS>0</modTimeWindowS>
+        <maxConcurrentWrites>2</maxConcurrentWrites>
+        <disableFsync>false</disableFsync>
+        <blockPullOrder>standard</blockPullOrder>
+        <copyRangeMethod>standard</copyRangeMethod>
+        <caseSensitiveFS>true</caseSensitiveFS>
+        <junctionsAsDirs>false</junctionsAsDirs>
+        <syncOwnership>false</syncOwnership>
+        <sendOwnership>false</sendOwnership>
+        <syncXattrs>false</syncXattrs>
+        <sendXattrs>false</sendXattrs>
+    </folder>
+    {% if inventory_hostname != 'wsl.hq' %}
+    <folder id="documents" label="Documents" path="{{ syncthing_data_dir }}/documents" type="{{ 'receiveonly' if inventory_hostname == 'hetzner.hq' else 'sendonly' }}" rescanIntervalS="3600" fsWatcherEnabled="true" fsWatcherDelayS="10" ignorePerms="false" autoNormalize="true">
+        <filesystemType>basic</filesystemType>
+        <device id="{{ hostvars['hetzner.hq']['syncthing_node_device_id'] | default('HETZNER-DEVICE-ID') }}" introducedBy=""></device>
+        {% if inventory_hostname != 'hetzner.hq' %}
+        <device id="{{ hostvars['laptop.hq']['syncthing_node_device_id'] | default('LAPTOP-DEVICE-ID') }}" introducedBy=""></device>
+        {% endif %}
+        <minDiskFree unit="%">1</minDiskFree>
+        <versioning>
+            {% if syncthing_versioning_enabled and inventory_hostname == 'hetzner.hq' %}
+            <type>{{ syncthing_versioning_type }}</type>
+            <params>
+                <keep>30</keep>
+            </params>
+            {% endif %}
+        </versioning>
+    </folder>
+    {% endif %}
+    {% if inventory_hostname in ['hetzner.hq', 'wsl.hq'] %}
+    <folder id="work" label="Work" path="{{ syncthing_data_dir }}/work" type="sendreceive" rescanIntervalS="1800" fsWatcherEnabled="true" fsWatcherDelayS="5" ignorePerms="false" autoNormalize="true">
+        <filesystemType>basic</filesystemType>
+        <device id="{{ hostvars['hetzner.hq']['syncthing_node_device_id'] | default('HETZNER-DEVICE-ID') }}" introducedBy=""></device>
+        <device id="{{ hostvars['wsl.hq']['syncthing_node_device_id'] | default('WSL-DEVICE-ID') }}" introducedBy=""></device>
+        <minDiskFree unit="%">2</minDiskFree>
+        <versioning>
+            <type>simple</type>
+            <params>
+                <keep>5</keep>
+            </params>
+        </versioning>
+    </folder>
+    {% endif %}
+    <device id="{{ syncthing_node_device_id }}" name="{{ syncthing_device_name }}" compression="metadata" introducer="false" skipIntroductionRemovals="false" introducedBy="">
+        <address>dynamic</address>
+        <paused>false</paused>
+        <autoAcceptFolders>false</autoAcceptFolders>
+        <maxSendKbps>0</maxSendKbps>
+        <maxRecvKbps>0</maxRecvKbps>
+        <maxRequestKiB>0</maxRequestKiB>
+        <untrusted>false</untrusted>
+        <remoteGUIPort>0</remoteGUIPort>
+        <numConnections>0</numConnections>
+    </device>
+    {% for host in groups['all'] %}
+    {% if host != inventory_hostname and hostvars[host]['syncthing_node_device_id'] is defined %}
+    <device id="{{ hostvars[host]['syncthing_node_device_id'] }}" name="{{ host }}" compression="metadata" introducer="false" skipIntroductionRemovals="false" introducedBy="">
+        <address>tcp://{{ hostvars[host]['ansible_host'] }}:22000</address>
+        <paused>false</paused>
+        <autoAcceptFolders>false</autoAcceptFolders>
+        <maxSendKbps>0</maxSendKbps>
+        <maxRecvKbps>0</maxRecvKbps>
+        <maxRequestKiB>0</maxRequestKiB>
+        <untrusted>false</untrusted>
+        <remoteGUIPort>0</remoteGUIPort>
+        <numConnections>0</numConnections>
+    </device>
+    {% endif %}
+    {% endfor %}
+    <gui enabled="{{ syncthing_gui_enabled | lower }}" tls="{{ syncthing_gui_tls | lower }}" debugging="false">
+        <address>{{ syncthing_gui_address }}</address>
+        <apikey>{{ syncthing_gui_api_key }}</apikey>
+        <theme>default</theme>
+    </gui>
+    <ldap></ldap>
+    <options>
+        <listenAddress>{{ syncthing_listen_address }}</listenAddress>
+        <globalAnnounceServer>default</globalAnnounceServer>
+        <globalAnnounceEnabled>true</globalAnnounceEnabled>
+        <localAnnounceEnabled>true</localAnnounceEnabled>
+        <localAnnouncePort>21027</localAnnouncePort>
+        <localAnnounceMCAddr>[ff12::8384]:21027</localAnnounceMCAddr>
+        <maxSendKbps>0</maxSendKbps>
+        <maxRecvKbps>0</maxRecvKbps>
+        <reconnectionIntervalS>60</reconnectionIntervalS>
+        <relaysEnabled>true</relaysEnabled>
+        <relayReconnectIntervalM>10</relayReconnectIntervalM>
+        <startBrowser>false</startBrowser>
+        <natEnabled>true</natEnabled>
+        <natLeaseMinutes>60</natLeaseMinutes>
+        <natRenewalMinutes>30</natRenewalMinutes>
+        <natTimeoutSeconds>10</natTimeoutSeconds>
+        <urAccepted>0</urAccepted>
+        <urSeen>0</urSeen>
+        <urUniqueID></urUniqueID>
+        <urURL>https://data.syncthing.net/newdata</urURL>
+        <urPostInsecurely>false</urPostInsecurely>
+        <urInitialDelayS>1800</urInitialDelayS>
+        <restartOnWakeup>true</restartOnWakeup>
+        <autoUpgradeIntervalH>12</autoUpgradeIntervalH>
+        <upgradeToPreReleases>false</upgradeToPreReleases>
+        <keepTemporariesH>24</keepTemporariesH>
+        <cacheIgnoredFiles>false</cacheIgnoredFiles>
+        <progressUpdateIntervalS>5</progressUpdateIntervalS>
+        <limitBandwidthInLan>false</limitBandwidthInLan>
+        <minHomeDiskFree unit="%">1</minHomeDiskFree>
+        <releasesURL>https://upgrades.syncthing.net/meta.json</releasesURL>
+        <overwriteRemoteDeviceNamesOnConnect>false</overwriteRemoteDeviceNamesOnConnect>
+        <tempIndexMinBlocks>10</tempIndexMinBlocks>
+        <trafficClass>0</trafficClass>
+        <setLowPriority>true</setLowPriority>
+        <maxFolderConcurrency>{{ syncthing_max_concurrent_scans }}</maxFolderConcurrency>
+        <crashReportingURL>https://crash.syncthing.net/newcrash</crashReportingURL>
+        <crashReportingEnabled>true</crashReportingEnabled>
+        <stunKeepaliveStartS>180</stunKeepaliveStartS>
+        <stunKeepaliveMinS>20</stunKeepaliveMinS>
+        <stunServers>default</stunServers>
+        <databaseTuning>auto</databaseTuning>
+        <maxConcurrentIncomingRequestKiB>0</maxConcurrentIncomingRequestKiB>
+        <announceLANAddresses>true</announceLANAddresses>
+        <sendFullIndexOnUpgrade>false</sendFullIndexOnUpgrade>
+        <connectionLimitEnough>0</connectionLimitEnough>
+        <connectionLimitMax>0</connectionLimitMax>
+        <insecureAllowOldTLSVersions>false</insecureAllowOldTLSVersions>
+        <connectionPriorityTcpLan>10</connectionPriorityTcpLan>
+        <connectionPriorityQuicLan>20</connectionPriorityQuicLan>
+        <connectionPriorityTcpWan>30</connectionPriorityTcpWan>
+        <connectionPriorityQuicWan>40</connectionPriorityQuicWan>
+        <connectionPriorityRelay>50</connectionPriorityRelay>
+        <connectionPriorityUpgradeThreshold>0</connectionPriorityUpgradeThreshold>
+    </options>
+    <remoteIgnoredDevice></remoteIgnoredDevice>
+    <pendingDevice></pendingDevice>
+    <pendingFolder></pendingFolder>
+</configuration>

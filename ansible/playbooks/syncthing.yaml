@@ -1,0 +1,131 @@
+---
+# Syncthing Deployment Playbook
+# Deploy secure file synchronization across the mesh network
+
+- name: Deploy Syncthing File Synchronization
+  hosts: all
+  gather_facts: yes
+  vars:
+    # Global Syncthing configuration
+    syncthing_user: verlyn13
+    syncthing_gui_enabled: true
+    syncthing_versioning_enabled: true
+    
+  pre_tasks:
+    - name: Check Tailscale connectivity
+      uri:
+        url: "http://{{ hostvars[item]['ansible_host'] }}:{{ tailscale_ping_port | default(80) }}"
+        method: HEAD
+        status_code: [200, 404]  # Accept 404 as "reachable"
+        timeout: 5
+      register: connectivity_check
+      failed_when: false
+      changed_when: false
+      loop: "{{ groups['all'] }}"
+      when: item != inventory_hostname
+      tags: [syncthing, connectivity]
+
+    - name: Display connectivity status
+      debug:
+        msg: |
+          Mesh network connectivity check complete:
+          {% for host in groups['all'] %}
+          {% if host != inventory_hostname %}
+          - {{ host }} ({{ hostvars[host]['ansible_host'] }}): {{ 'Connected' if connectivity_check is succeeded else 'Checking via Tailscale...' }}
+          {% endif %}
+          {% endfor %}
+      tags: [syncthing, connectivity]
+
+    - name: Ensure sync base directory exists
+      file:
+        path: "{{ syncthing_data_dir }}"
+        state: directory
+        owner: "{{ syncthing_user }}"
+        group: "{{ syncthing_user }}"
+        mode: '0755'
+      become: yes
+      tags: [syncthing, setup]
+
+  roles:
+    - role: syncthing
+      tags: [syncthing]
+
+  post_tasks:
+    - name: Wait for Syncthing to be fully started
+      pause:
+        seconds: 10
+      tags: [syncthing, wait]
+
+    - name: Verify Syncthing installation
+      uri:
+        url: "http://127.0.0.1:8384/rest/system/status"
+        method: GET
+        headers:
+          X-API-Key: "{{ syncthing_gui_api_key | default(ansible_machine_id) }}"
+        return_content: yes
+      register: syncthing_status
+      until: syncthing_status.status == 200
+      retries: 12
+      delay: 5
+      tags: [syncthing, verify]
+
+    - name: Display Syncthing status
+      debug:
+        var: syncthing_status.json
+      when: syncthing_status.json is defined
+      tags: [syncthing, status]
+
+    - name: Create deployment summary
+      debug:
+        msg: |
+          🎉 Syncthing deployment complete on {{ inventory_hostname }}!
+          
+          📊 Service Status: {{ syncthing_status.json.systemState | default('Unknown') }}
+          🆔 Device ID: {{ syncthing_node_device_id }}
+          🌐 GUI URL: http://127.0.0.1:8384 (local access only)
+          📁 Sync Directory: {{ syncthing_data_dir }}
+          
+          📋 Next steps:
+          1. Verify device connections in Web UI
+          2. Check folder sync status
+          3. Test file synchronization
+      tags: [syncthing, summary]
+
+- name: Configure Device Connections
+  hosts: all
+  serial: 1  # Configure one at a time to avoid conflicts
+  gather_facts: no
+  vars:
+    syncthing_api_base: "http://127.0.0.1:8384/rest"
+    
+  tasks:
+    - name: Get current device list
+      uri:
+        url: "{{ syncthing_api_base }}/system/config"
+        method: GET
+        headers:
+          X-API-Key: "{{ syncthing_gui_api_key | default(ansible_machine_id) }}"
+        return_content: yes
+      register: current_config
+      tags: [syncthing, devices]
+
+    - name: Display current device configuration
+      debug:
+        msg: |
+          Current devices configured on {{ inventory_hostname }}:
+          {% for device in current_config.json.devices %}
+          - {{ device.name }} ({{ device.deviceID[:16] }}...)
+          {% endfor %}
+      when: current_config.json is defined
+      tags: [syncthing, devices]
+
+    - name: Verify folder configurations
+      debug:
+        msg: |
+          Folders configured on {{ inventory_hostname }}:
+          {% for folder in current_config.json.folders %}
+          - {{ folder.label }} ({{ folder.id }}) -> {{ folder.path }}
+            Type: {{ folder.type }}, Devices: {{ folder.devices | length }}
+          {% endfor %}
+      when: current_config.json is defined
+      tags: [syncthing, folders]

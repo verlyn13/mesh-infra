@@ -1,0 +1,128 @@
+---
+# Syncthing Sync Folders Configuration
+
+- name: Create base sync directories
+  file:
+    path: "{{ item.value.path }}"
+    state: directory
+    owner: "{{ syncthing_user }}"
+    group: "{{ syncthing_group }}"
+    mode: '0755'
+    recurse: yes
+  become: yes
+  loop: "{{ syncthing_folders | dict2items }}"
+  tags: [syncthing, folders]
+
+- name: Create development project subdirectories
+  file:
+    path: "{{ syncthing_data_dir }}/development/{{ item }}"
+    state: directory
+    owner: "{{ syncthing_user }}"
+    group: "{{ syncthing_group }}"
+    mode: '0755'
+  become: yes
+  loop:
+    - active-projects
+    - shared-tools
+    - experiments
+  when: "'development' in syncthing_folders"
+  tags: [syncthing, folders]
+
+- name: Create documents subdirectories
+  file:
+    path: "{{ syncthing_data_dir }}/documents/{{ item }}"
+    state: directory
+    owner: "{{ syncthing_user }}"
+    group: "{{ syncthing_group }}"
+    mode: '0755'
+  become: yes
+  loop:
+    - personal
+    - reference
+    - archive
+  when: "'documents' in syncthing_folders"
+  tags: [syncthing, folders]
+
+- name: Create config subdirectories
+  file:
+    path: "{{ syncthing_data_dir }}/config/{{ item }}"
+    state: directory
+    owner: "{{ syncthing_user }}"
+    group: "{{ syncthing_group }}"
+    mode: '0755'
+  become: yes
+  loop:
+    - shell
+    - editors
+    - tools
+    - ssh
+  when: "'config' in syncthing_folders"
+  tags: [syncthing, folders]
+
+- name: Create work directories (WSL and Hetzner only)
+  file:
+    path: "{{ syncthing_data_dir }}/work/{{ item }}"
+    state: directory
+    owner: "{{ syncthing_user }}"
+    group: "{{ syncthing_group }}"
+    mode: '0755'
+  become: yes
+  loop:
+    - projects
+    - resources
+    - temporary
+  when: >
+    inventory_hostname in ['hetzner.hq', 'wsl.hq'] and
+    'work' in syncthing_folders
+  tags: [syncthing, folders]
+
+- name: Create .stignore files for selective sync
+  template:
+    src: "stignore-{{ item.key }}.j2"
+    dest: "{{ item.value.path }}/.stignore"
+    owner: "{{ syncthing_user }}"
+    group: "{{ syncthing_group }}"
+    mode: '0644'
+  become: yes
+  loop: "{{ syncthing_folders | dict2items }}"
+  when: syncthing_create_ignore_files | default(true)
+  tags: [syncthing, folders, ignore]
+
+- name: Create README files in sync directories
+  template:
+    src: folder-readme.md.j2
+    dest: "{{ item.value.path }}/README.md"
+    owner: "{{ syncthing_user }}"
+    group: "{{ syncthing_group }}"
+    mode: '0644'
+    force: no
+  become: yes
+  loop: "{{ syncthing_folders | dict2items }}"
+  tags: [syncthing, folders, docs]
+
+- name: Set up symlinks for common directories
+  file:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    state: link
+    owner: "{{ syncthing_user }}"
+    group: "{{ syncthing_group }}"
+    force: yes
+  become: yes
+  loop:
+    - src: "{{ syncthing_data_dir }}/development"
+      dest: "{{ syncthing_home }}/dev"
+    - src: "{{ syncthing_data_dir }}/documents"
+      dest: "{{ syncthing_home }}/docs"
+    - src: "{{ syncthing_data_dir }}/config"
+      dest: "{{ syncthing_home }}/dotfiles"
+  tags: [syncthing, folders, symlinks]
+
+- name: Display folder configuration summary
+  debug:
+    msg: |
+      Syncthing folders configured on {{ inventory_hostname }}:
+      {% for folder_name, folder_config in syncthing_folders.items() %}
+      - {{ folder_name }}: {{ folder_config.path }} ({{ folder_config.type }})
+      {% endfor %}
+  tags: [syncthing, folders, info]
