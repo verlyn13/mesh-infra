@@ -49,7 +49,7 @@ check_dir "docs/_grounding"
 check_dir "docs/_grounding/adr"
 check_dir "docs/_generated"
 check_dir "infra/policy/intent"
-check_dir "infra/policy/generated"
+# Note: infra/policy/generated is gitignored (created on demand)
 check_dir "infra/bootstrap"
 check_dir "infra/backup/wg"
 check_dir "infra/scripts"
