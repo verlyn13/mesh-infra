@@ -1,0 +1,291 @@
+# Complete Components Inventory
+# Generated: 2025-09-07
+# Purpose: Machine-readable inventory of all implemented components
+
+version: 1.0.0
+project: mesh_infrastructure
+status: phase3_ready
+
+components:
+  network:
+    tailscale:
+      version: latest
+      nodes:
+        - name: hetzner-hq
+          ip: 100.84.151.58
+          role: [hub, exit_node]
+          config_location: /etc/tailscale
+        - name: laptop-hq
+          ip: 100.84.2.8
+          role: [workstation]
+          config_location: /etc/tailscale
+        - name: wsl-fedora-kbc
+          ip: 100.88.131.44
+          role: [workstation, bridge]
+          config_location: /etc/tailscale
+          special: userspace_networking
+      network_range: 100.64.0.0/10
+      auth_method: oauth2
+      auth_email: jeffreyverlynjohnson@gmail.com
+    
+    ssh:
+      port_mapping:
+        hetzner: 2222
+        laptop: 22
+        wsl: 22
+      authentication: public_key
+      authorized_keys: ~/.ssh/authorized_keys
+      config_file: ~/.ssh/config
+    
+    firewall:
+      type: iptables
+      default_policy: deny
+      allowed_ports:
+        internal: [22, 443, 8080, 8384]
+        emergency: [2222]
+        syncthing: [22000, 21027]
+
+  configuration_management:
+    ansible:
+      version: 2.15+
+      control_node: hetzner-hq
+      inventory:
+        type: yaml
+        location: ansible/inventory/hosts.yaml
+        groups:
+          - headquarters
+          - workstations
+        host_vars:
+          - hetzner.hq.yaml
+          - laptop.hq.yaml
+          - wsl.hq.yaml
+      
+      playbooks:
+        site:
+          file: ansible/playbooks/site.yaml
+          purpose: full_site_configuration
+          status: operational
+        
+        ping:
+          file: ansible/playbooks/ping.yaml
+          purpose: connectivity_test
+          status: operational
+        
+        install_tools:
+          file: ansible/playbooks/install-tools.yaml
+          purpose: development_tools
+          status: created
+        
+        syncthing:
+          file: ansible/playbooks/syncthing.yaml
+          purpose: file_synchronization
+          status: created
+      
+      roles:
+        syncthing:
+          location: ansible/roles/syncthing/
+          files:
+            tasks:
+              - main.yaml
+              - install.yaml
+              - configure.yaml
+              - service.yaml
+              - folders.yaml
+              - wsl.yaml
+            templates:
+              - config.xml.j2
+              - syncthing.service.j2
+              - wsl-startup.sh.j2
+            handlers:
+              - main.yaml
+              - restart.yaml
+            defaults:
+              - main.yaml
+            vars:
+              - main.yaml
+            files:
+              - device-ids.txt
+          total_files: 18
+          status: created
+          deployment: pending
+
+  file_synchronization:
+    syncthing:
+      version: 1.27.0
+      deployment_status: pending
+      architecture: 3_node_mesh
+      
+      folders:
+        development:
+          path: /home/verlyn13/sync/development
+          type: sendreceive
+          nodes: [hetzner, laptop, wsl]
+          versioning: simple
+          
+        documents:
+          path: /home/verlyn13/sync/documents
+          type: sendonly
+          source: [laptop, wsl]
+          destination: hetzner
+          versioning: staggered
+          
+        work:
+          path: /home/verlyn13/sync/work
+          type: sendreceive
+          nodes: [wsl, hetzner]
+          excluded: [laptop]
+          versioning: simple
+          
+        config:
+          path: /home/verlyn13/sync/config
+          type: selective
+          per_node: true
+          versioning: none
+      
+      security:
+        device_auth: certificate
+        api_key: generated
+        gui_auth: bcrypt
+        transport: tls_1.3
+        listen_address: tcp://0.0.0.0:22000
+        discovery: global
+      
+      wsl_adaptations:
+        systemd_mode: user
+        startup_method: manual_script
+        network_mode: userspace
+        gui_access: localhost_only
+
+  automation:
+    makefile:
+      targets:
+        infrastructure:
+          - init-day1
+          - escape-hatch
+          - test
+        development:
+          - ground-pull
+          - ground-plan
+          - probe
+          - lint
+        documentation:
+          - doc-check
+          - policy-check
+          - policy-generate
+        ansible:
+          - ansible-setup
+          - ansible-ping
+          - ansible-site
+          - ansible-install-tools
+        syncthing:
+          - syncthing-deploy
+          - syncthing-status
+      total_targets: 19
+      location: Makefile
+    
+    scripts:
+      python:
+        - name: ground.py
+          purpose: agent_interface
+          functions: [pull, plan, commit]
+        - name: repo_probe.py
+          purpose: snapshot_generator
+          output: docs/_generated/snapshot.json
+        - name: doc_check.py
+          purpose: documentation_validation
+        - name: policy_check.py
+          purpose: policy_compliance
+      
+      shell:
+        - name: init-day1.sh
+          purpose: initial_infrastructure
+          location: infra/scripts/
+        - name: test-mesh.sh
+          purpose: connectivity_testing
+          location: infra/scripts/
+        - name: setup.sh
+          purpose: ansible_setup
+          location: ansible/scripts/
+      
+      tests:
+        - name: verify_foundation.sh
+          purpose: structure_validation
+        - name: test_workflows.sh
+          purpose: workflow_testing
+
+  documentation:
+    user_facing:
+      - README.md
+      - CLAUDE.md
+      - .claude-instructions
+    
+    phase_documentation:
+      - docs/PHASE3_IMPLEMENTATION.md
+      - docs/PHASE3_QUICK_START.md
+      - docs/INFRASTRUCTURE_STATUS_REPORT.md
+    
+    generated:
+      - docs/_generated/snapshot.json
+      - docs/_generated/deployment_status.json
+      - docs/_generated/pr_manifest.json
+    
+    protected:
+      - docs/_grounding/facts.yml
+      - docs/_grounding/module_map.json
+      - infra/policy/intent/network.yaml
+      - CODEOWNERS
+
+  security_policies:
+    invariants:
+      - admin_ports_never_public
+      - tokens_expire_24h
+      - ssh_key_only_auth
+      - default_deny_inbound
+    
+    access_control:
+      emergency:
+        method1:
+          type: direct_ssh
+          command: ssh verlyn13@91.99.101.204 -p 2222
+        method2:
+          type: tailscale_ssh
+          command: ssh verlyn13@hetzner-hq
+        method3:
+          type: web_console
+          provider: hetzner
+    
+    compliance:
+      git_hooks: none
+      protected_branches: [main]
+      codeowners: active
+      signed_commits: optional
+
+  repository_metadata:
+    structure:
+      total_files: 95
+      total_directories: 18
+      lines_of_code:
+        python: 487
+        yaml: 1243
+        shell: 215
+        markdown: 892
+    
+    git:
+      remote: github.com/verlyn13/mesh-infra
+      branch: main
+      last_commit: a4e10680
+      commit_count: 47
+    
+    dependencies:
+      system:
+        - tailscale
+        - ansible
+        - python3
+        - git
+      python:
+        - pyyaml
+        - jinja2
+      optional:
+        - syncthing
+        - ruff
+        - shellcheck
