@@ -19,16 +19,16 @@ Implement secure, selective file synchronization across the mesh network using S
 ### Network Readiness
 - ✅ **hetzner-hq** (100.84.151.58): Control node with persistent storage
 - ✅ **laptop-hq** (100.84.2.8): Mobile workstation with local storage  
-- ⏳ **wsl-hq** (TBD): Work environment node (deploying 2025-09-08)
+- ✅ **wsl-fedora-kbc** (100.88.131.44): Work environment node deployed
 - ✅ **Internal Domain**: `.hq` resolution working via Tailscale
 - ✅ **Port Access**: Default Syncthing ports available (22000, 21027)
 
 ### Ansible Infrastructure
 - ✅ **Control Node**: Hetzner running Ansible v2.16.3
 - ✅ **Role Structure**: `ansible/roles/syncthing/` directory prepared
-- ✅ **Inventory**: Tailscale-based host targeting ready (2/3 nodes)
+- ✅ **Inventory**: Tailscale-based host targeting ready (3/3 nodes)
 - ✅ **SSH Access**: Passwordless automation configured for deployed nodes
-- ⏳ **WSL2 Integration**: Pending node addition with userspace networking
+- ✅ **WSL2 Integration**: Node deployed with userspace networking support
 
 ## 📋 Implementation Plan
 
@@ -114,11 +114,6 @@ make ansible-site        # Deploy to all managed nodes
 
 ## 🔄 Implementation Timeline
 
-### Immediate: WSL2 Node Addition (2025-09-08)
-- Add WSL2 node to mesh network
-- Validate 3-node connectivity
-- Update Ansible inventory for complete mesh
-
 ### Week 1: Three-Node Syncthing Deployment
 - Create Syncthing Ansible role with WSL2 adaptations
 - Deploy to all three operational nodes
@@ -136,12 +131,7 @@ make ansible-site        # Deploy to all managed nodes
 
 ## 📝 Next Actions
 
-### Tomorrow (2025-09-08) - WSL2 Node Addition
-1. **Deploy WSL2 Node**: Follow NODE_ADDITION_GUIDE.md procedures
-2. **Complete Mesh**: Validate 3-node connectivity
-3. **Update Documentation**: facts.yml with complete deployment status
-
-### Phase 3 Implementation (Post WSL2)
+### Phase 3 Implementation (All Nodes Deployed)
 1. **Review and Approve**: Confirm 3-node Phase 3 approach
 2. **Begin Implementation**: Start with Syncthing Ansible role
 3. **Test Incrementally**: Deploy 2-node first, add WSL2 carefully
@@ -149,4 +139,4 @@ make ansible-site        # Deploy to all managed nodes
 
 ---
 
-**Ready to complete 3-node mesh tomorrow, then proceed with Phase 3.**
+**3-node mesh complete! Ready to proceed with Phase 3 implementation.**

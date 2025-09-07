@@ -35,12 +35,12 @@ all:
           expected_uptime: 40
           
         wsl.hq:
-          ansible_host: pending  # Will be updated after WSL2 deployment
+          ansible_host: 100.88.131.44  # WSL2 deployed successfully
           device_type: wsl2
           os: fedora
           windows_host: KBC-JJOHNSON47
           expected_uptime: 30
-          ansible_connection: ssh  # Will use SSH when available
+          ansible_connection: ssh
           # WSL2-specific configurations
           wsl2_environment: true
           tailscale_userspace_mode: true

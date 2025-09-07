@@ -26,13 +26,7 @@ Modern development happens across multiple machines, networks, and contexts. Thi
 |------|--------|--------------|----------|
 | **Hetzner Hub** | ✅ Online | 100.84.151.58 | 2025-09-07 |
 | **Fedora Laptop** | ✅ Online | 100.84.2.8 | 2025-09-06 |
-<<<<<<< Updated upstream
 | **WSL2** | ✅ Online | 100.88.131.44 | 2025-09-07 |
-||||||| Stash base
-| **WSL2** | ⏳ Pending | - | - |
-=======
-| **WSL2** | ⏳ Deploying | TBD | 2025-09-08 |
->>>>>>> Stashed changes
 
 **[View Live Network Status →](docs/NETWORK_STATUS.md)**
 
@@ -178,16 +172,8 @@ make test         # Verify connectivity
 
 ## 🗺️ Roadmap
 
-<<<<<<< Updated upstream
 ### ✅ Phase 1: Network Foundation (100% Complete)
 - Mesh VPN connectivity (3/3 nodes online)
-||||||| Stash base
-### ✅ Phase 1: Network Foundation (66% Complete)
-- Mesh VPN connectivity (2/3 nodes online)
-=======
-### ✅ Phase 1: Network Foundation (Complete)
-- Mesh VPN connectivity (2/3 nodes online, 3rd deploying)
->>>>>>> Stashed changes
 - Emergency access methods (documented and tested)
 - Basic security policies (active)
 
