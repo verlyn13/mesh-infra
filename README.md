@@ -25,7 +25,7 @@ Modern development happens across multiple machines, networks, and contexts. Thi
 | Node | Status | Tailscale IP | Deployed |
 |------|--------|--------------|----------|
 | **Hetzner Hub** | ✅ Online | 100.84.151.58 | 2025-09-07 |
-| **Fedora Laptop** | ⏳ Pending | - | - |
+| **Fedora Laptop** | ✅ Online | 100.84.2.8 | 2025-09-06 |
 | **WSL2** | ⏳ Pending | - | - |
 
 **[View Live Network Status →](docs/NETWORK_STATUS.md)**

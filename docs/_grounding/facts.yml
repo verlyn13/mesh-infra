@@ -19,9 +19,11 @@ nodes:
   laptop:
     hostname: fedora-top
     tailscale_hostname: laptop-hq
+    tailscale_ipv4: 100.84.2.8
     role: [workstation, roaming]
     roaming: true
-    status: pending
+    status: deployed
+    deployed_date: 2025-09-06
   wsl:
     hostname: fedora-wsl
     tailscale_hostname: wsl-hq

@@ -11,7 +11,7 @@ The mesh network infrastructure is partially deployed with the Hetzner hub node 
 | Node | Hostname | Tailscale IP | Status | Deployed |
 |------|----------|--------------|--------|----------|
 | **Hetzner Hub** | hetzner-hq | 100.84.151.58 | ✅ Online | 2025-09-07 |
-| **Fedora Laptop** | laptop-hq | - | ⏳ Pending | - |
+| **Fedora Laptop** | laptop-hq | 100.84.2.8 | ✅ Online | 2025-09-06 |
 | **WSL2** | wsl-hq | - | ⏳ Pending | - |
 
 ## Network Configuration
