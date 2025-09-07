@@ -68,7 +68,6 @@ def plan():
 
 def commit():
     """Validate changes before commit"""
-    import os
     
     # Check for grounding file modifications
     result = subprocess.run(["git", "diff", "--name-only", "docs/_grounding/"], 
