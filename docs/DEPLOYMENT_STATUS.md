@@ -1,8 +1,9 @@
 # Mesh-Ops Deployment Status
 
-**Last Updated**: 2025-09-08  
+**Last Updated**: 2025-09-08 20:30 AKDT  
 **Current Phase**: 2.8 - Dedicated User Implementation  
-**Rollout Strategy**: WSL → Laptop → Hetzner (risk mitigation)
+**Rollout Strategy**: WSL → Laptop → Hetzner (risk mitigation)  
+**Deployment Progress**: 🎯 **67% Complete (2/3 nodes)**
 
 ## Deployment Progress
 
@@ -10,9 +11,9 @@
 
 | Node | Status | Deployment Date | Notes |
 |------|--------|----------------|-------|
-| **wsl-fedora-kbc** | ✅ COMPLETE | 2025-09-08 | First node deployed, fully operational |
-| **laptop-hq** | 🔄 READY | Pending | Next in sequence |
-| **hetzner-hq** | ⏳ PLANNED | Pending | Production hub, deploy last |
+| **wsl-fedora-kbc** | ✅ COMPLETE | 2025-09-08 19:20 | First node deployed, fully operational |
+| **laptop-hq** | ✅ COMPLETE | 2025-09-08 20:30 | Successfully deployed, no issues |
+| **hetzner-hq** | 🔄 READY | Pending | Production hub, ready for final deployment |
 
 ## WSL Node (wsl-fedora-kbc) - COMPLETE
 
@@ -41,28 +42,30 @@
 - ✅ Network connectivity confirmed
 - ✅ Mesh network (Tailscale) reachable
 
-## Laptop Node (laptop-hq) - READY FOR DEPLOYMENT
+## Laptop Node (laptop-hq) - COMPLETE
 
-### Pre-Deployment Checklist
-- [ ] Review WSL deployment learnings
-- [ ] Ensure scripts are updated with fixes
-- [ ] Verify Tailscale connectivity
-- [ ] Check current user SSH keys
-
-### Deployment Commands
-```bash
-# On laptop-hq (current node)
-cd ~/Projects/verlyn13/mesh-infra
-make mesh-user-create
-make mesh-user-validate
-make mesh-user-bootstrap  # Install development tools
-```
-
-### Expected Configuration
-- **Node Type**: standard (Fedora)
+### Implementation Summary
+- **User Created**: mesh-ops (UID: 2000, GID: 2000)
+- **Home Directory**: /home/mesh-ops configured
 - **Groups**: wheel, docker, systemd-journal
-- **Sudo**: Full Tailscale, DNF, Docker, Podman access
-- **Profile**: Standard Linux environment
+- **Sudo Permissions**: Full Tailscale, DNF, Docker, Podman access
+- **SSH Access**: Keys generated and operational
+- **Profile**: Standard Linux environment configured
+
+### Deployment Highlights
+- ✅ User account created successfully
+- ✅ Directory structure verified
+- ✅ SSH configuration working
+- ✅ Sudo permissions validated
+- ✅ Tailscale integration confirmed
+- ✅ Can access all 3 mesh nodes
+
+### Key Success Factors
+- Full Linux environment (no WSL limitations)
+- Docker group available and configured
+- Native systemd support
+- No corporate network restrictions
+- Smooth deployment with no issues
 
 ## Hetzner Node (hetzner-hq) - PLANNED
 
@@ -107,17 +110,38 @@ ssh mesh-ops@hetzner-hq cat ~/.ssh/id_ed25519.pub
 | Code-Server | laptop-hq | 8443 | http://laptop-hq:8443 |
 | Jupyter | wsl-fedora-kbc | 8888 | http://wsl-fedora-kbc:8888 |
 
+## Lessons Learned
+
+### WSL Deployment (Node 1)
+- **Fish shell template issue**: Resolved by replacing template syntax with actual values
+- **WSL-specific needs**: DNS fixes, clock sync, userspace Tailscale
+- **Corporate restrictions**: Limited sudo, no Docker group
+- **Success factors**: Careful adaptation to WSL2 environment
+
+### Laptop Deployment (Node 2)
+- **Smooth deployment**: No issues encountered
+- **Full Linux advantage**: Docker group available, native systemd
+- **No restrictions**: Complete sudo access as designed
+- **Success factors**: Proven scripts from WSL, full Linux environment
+
 ## Next Steps
 
-### Immediate (Today)
-1. ✅ WSL deployment complete
-2. 🔄 Deploy to laptop-hq (current node)
-3. ⏳ Validate laptop deployment
+### Immediate (Ready Now)
+1. ✅ WSL deployment complete (19:20 AKDT)
+2. ✅ Laptop deployment complete (20:30 AKDT)
+3. 🔄 **Deploy to hetzner-hq** - Final node ready
 
-### Tomorrow
-1. Deploy to hetzner-hq (production hub)
-2. Exchange SSH keys between all mesh-ops users
-3. Test cross-node access
+### Hetzner Deployment
+```bash
+# Option 1: Deploy from current node (laptop)
+./scripts/deploy-hetzner.sh
+
+# Option 2: SSH and deploy directly
+ssh -p 2222 hetzner-hq
+cd mesh-infra
+make mesh-user-create
+make mesh-user-validate
+```
 
 ### Phase 2.9 (After User Deployment)
 1. Install development tools (uv, bun, mise)

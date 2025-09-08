@@ -72,6 +72,13 @@ phases:
     control_node: hetzner-hq
     managed_nodes: [laptop-hq]
     pending_nodes: [wsl-fedora-kbc]
+  phase2_8_mesh_ops:
+    status: in_progress
+    completion_date: 2025-09-08
+    description: "Dedicated mesh-ops user deployment"
+    nodes_deployed: [wsl-fedora-kbc, laptop-hq]
+    pending_nodes: [hetzner-hq]
+    completion_percentage: 67
   phase3_sync:
     status: ready
     description: "File synchronization with Syncthing"
