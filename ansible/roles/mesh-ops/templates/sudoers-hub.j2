@@ -2,12 +2,16 @@
 # Deployed by Ansible on {{ ansible_date_time.iso8601 }}
 # Node: {{ ansible_hostname }}
 
-# Allow mesh-ops to manage Tailscale
+# Allow mesh-ops to manage Tailscale ONLY
 {{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart tailscaled
 {{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl start tailscaled
 {{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl stop tailscaled
 {{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl status tailscaled
 {{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/tailscale *
+
+# SAFETY: Never allow wildcards for critical services
+# NEVER: systemctl stop/start/restart * (can kill SSH!)
+# NEVER: systemctl * sshd (protect SSH service)
 
 # Package management for Ubuntu/Debian
 {{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/apt update
@@ -24,10 +28,18 @@
 # Firewall management (UFW)
 {{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/sbin/ufw *
 
-# Service management for hub services
+# Service management for hub services (SPECIFIC services only)
 {{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart nginx
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl start nginx
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl stop nginx
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl status nginx
 {{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart syncthing@{{ mesh_user }}
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl start syncthing@{{ mesh_user }}
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl stop syncthing@{{ mesh_user }}
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl status syncthing@{{ mesh_user }}
 
-# Systemd user session management
-{{ mesh_user }} ALL=(ALL) NOPASSWD: /bin/loginctl *
+# Systemd user session management (user scope only - safe)
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /bin/loginctl enable-linger {{ mesh_user }}
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /bin/loginctl disable-linger {{ mesh_user }}
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /bin/loginctl show-user {{ mesh_user }}
 {{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl --user *

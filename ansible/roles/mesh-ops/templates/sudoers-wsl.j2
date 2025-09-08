@@ -8,9 +8,15 @@ Defaults:{{ mesh_user }} !requiretty
 Defaults:{{ mesh_user }} env_keep += "WSL_DISTRO_NAME WSL_INTEROP WSL_DISTRO"
 Defaults:{{ mesh_user }} env_keep += "XDG_RUNTIME_DIR XDG_CONFIG_HOME XDG_DATA_HOME"
 
-# Systemd user services (limited in WSL2)
+# Systemd user services (limited in WSL2, user scope only - safe)
 {{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl --user *
-{{ mesh_user }} ALL=(ALL) NOPASSWD: /bin/loginctl *
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /bin/loginctl enable-linger {{ mesh_user }}
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /bin/loginctl disable-linger {{ mesh_user }}
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /bin/loginctl show-user {{ mesh_user }}
+
+# SAFETY: WSL2 doesn't run system services normally, but still:
+# NEVER: systemctl stop/start/restart * (dangerous wildcards)
+# NEVER: systemctl * sshd (protect SSH if it exists)
 
 # Package management (detect distribution)
 {% if ansible_os_family == "RedHat" %}
