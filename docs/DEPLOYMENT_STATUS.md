@@ -1,19 +1,19 @@
 # Mesh-Ops Deployment Status
 
-**Last Updated**: 2025-09-08 20:30 AKDT  
+**Last Updated**: 2025-09-08 21:17 UTC  
 **Current Phase**: 2.8 - Dedicated User Implementation  
 **Rollout Strategy**: WSL → Laptop → Hetzner (risk mitigation)  
-**Deployment Progress**: 🎯 **67% Complete (2/3 nodes)**
+**Deployment Progress**: 🎯 **100% COMPLETE (3/3 nodes)** ✅
 
 ## Deployment Progress
 
-### Phase 2.8: Mesh-Ops User Implementation
+### Phase 2.8: Mesh-Ops User Implementation - COMPLETE
 
 | Node | Status | Deployment Date | Notes |
 |------|--------|----------------|-------|
-| **wsl-fedora-kbc** | ✅ COMPLETE | 2025-09-08 19:20 | First node deployed, fully operational |
-| **laptop-hq** | ✅ COMPLETE | 2025-09-08 20:30 | Successfully deployed, no issues |
-| **hetzner-hq** | 🔄 READY | Pending | Production hub, ready for final deployment |
+| **wsl-fedora-kbc** | ✅ COMPLETE | 2025-09-08 19:20 | First node, WSL2 environment with adaptations |
+| **laptop-hq** | ✅ COMPLETE | 2025-09-08 20:30 | Second node, smooth deployment |
+| **hetzner-hq** | ✅ COMPLETE | 2025-09-08 21:17 | Final node, production hub with security constraints |
 
 ## WSL Node (wsl-fedora-kbc) - COMPLETE
 
@@ -67,26 +67,32 @@
 - No corporate network restrictions
 - Smooth deployment with no issues
 
-## Hetzner Node (hetzner-hq) - PLANNED
+## Hetzner Node (hetzner-hq) - COMPLETE
 
-### Deployment Notes
-- **Node Type**: hub (Ubuntu)
-- **Role**: Production control node
-- **Deploy Last**: After validating on laptop
-- **Special Considerations**: 
-  - Exit node configuration
-  - Public IP exposure
-  - Ansible control node role
+### Implementation Summary
+- **User Created**: mesh-ops (UID: 2000, GID: 2000)
+- **Home Directory**: /home/mesh-ops configured
+- **Groups**: sudo, docker, systemd-journal  
+- **SSH Access**: Working on port 2222
+- **Security Model**: Production-constrained (read-only system access)
 
-### Deployment Commands
-```bash
-# On hetzner-hq (via SSH)
-ssh hetzner-hq
-cd mesh-infra
-make mesh-user-create
-make mesh-user-validate
-make mesh-user-bootstrap
-```
+### Critical Incident & Recovery
+- **SSH Outage**: Caused by dangerous wildcard sudo permissions
+- **Root Cause**: `systemctl stop *` rule allowed mesh-ops to kill SSH
+- **Recovery**: Used Hetzner console, fixed sudoers, restored access
+- **Downtime**: ~2 hours (SSH only, services unaffected)
+
+### Production Security Model
+Unlike other nodes, Hetzner mesh-ops has restricted permissions:
+- ✅ Read-only system monitoring
+- ✅ User-space development only
+- ❌ No system service control
+- ❌ No package management
+- ❌ No system configuration changes
+
+### SSH Key Information
+- **Public Key**: `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICtFWy9gKKR7kh2n5IxwWlzCFfWgyrcEss6wrub9shq8 mesh-ops@hetzner-hq`
+- **Access**: `ssh -p 2222 mesh-ops@91.99.101.204`
 
 ## Cross-Node Integration
 

@@ -73,12 +73,13 @@ phases:
     managed_nodes: [laptop-hq]
     pending_nodes: [wsl-fedora-kbc]
   phase2_8_mesh_ops:
-    status: in_progress
+    status: complete
     completion_date: 2025-09-08
     description: "Dedicated mesh-ops user deployment"
-    nodes_deployed: [wsl-fedora-kbc, laptop-hq]
-    pending_nodes: [hetzner-hq]
-    completion_percentage: 67
+    nodes_deployed: [wsl-fedora-kbc, laptop-hq, hetzner-hq]
+    completion_percentage: 100
+    notes: "All nodes operational with mesh-ops (UID 2000), Hetzner has production constraints"
+    incident: "SSH outage on Hetzner resolved via console access and sudoers fix"
   phase3_sync:
     status: ready
     description: "File synchronization with Syncthing"
