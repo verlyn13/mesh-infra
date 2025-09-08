@@ -1,0 +1,27 @@
+# Sudoers configuration for mesh-ops user - Standard (Fedora/RHEL)
+# Deployed by Ansible on {{ ansible_date_time.iso8601 }}
+# Node: {{ ansible_hostname }}
+
+# Allow mesh-ops to manage Tailscale
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart tailscaled
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl start tailscaled
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl stop tailscaled
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl status tailscaled
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/tailscale *
+
+# Package management for Fedora/RHEL
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/dnf install -y *
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/dnf update -y
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/dnf search *
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/dnf info *
+
+# Container management
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/docker *
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/podman *
+
+# Firewall management
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/firewall-cmd *
+
+# Systemd user session management
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /bin/loginctl *
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl --user *

@@ -1,0 +1,47 @@
+# Sudoers configuration for mesh-ops user - WSL2
+# Deployed by Ansible on {{ ansible_date_time.iso8601 }}
+# Node: {{ ansible_hostname }}
+# WSL2 environment with corporate restrictions
+
+# Preserve WSL environment variables
+Defaults:{{ mesh_user }} !requiretty
+Defaults:{{ mesh_user }} env_keep += "WSL_DISTRO_NAME WSL_INTEROP WSL_DISTRO"
+Defaults:{{ mesh_user }} env_keep += "XDG_RUNTIME_DIR XDG_CONFIG_HOME XDG_DATA_HOME"
+
+# Systemd user services (limited in WSL2)
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl --user *
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /bin/loginctl *
+
+# Package management (detect distribution)
+{% if ansible_os_family == "RedHat" %}
+# Fedora/RHEL in WSL2
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/dnf install -y *
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/dnf update -y
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/yum install -y *
+{% else %}
+# Ubuntu/Debian in WSL2
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/apt update
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/apt install -y *
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/apt-get update
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/apt-get install -y *
+{% endif %}
+
+# Tailscale userspace mode (WSL2 requirement)
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/tailscale *
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/sbin/tailscaled *
+
+# DNS management (WSL2 DNS issues workaround)
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/tee /etc/resolv.conf
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /bin/chmod * /etc/resolv.conf
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /bin/chattr * /etc/resolv.conf
+
+# Runtime directory management for systemd user sessions
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /bin/mkdir -p /run/user/{{ mesh_uid }}
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /bin/chown {{ mesh_user }}\:{{ mesh_user }} /run/user/{{ mesh_uid }}
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /bin/chmod 700 /run/user/{{ mesh_uid }}
+
+# WSL utilities
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/wslpath *
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/wslview *
+
+# Note: No Docker sudo in WSL2 - use rootless podman instead

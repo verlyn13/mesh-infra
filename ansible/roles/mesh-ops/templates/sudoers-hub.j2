@@ -1,0 +1,33 @@
+# Sudoers configuration for mesh-ops user - Hub (Ubuntu/Debian)
+# Deployed by Ansible on {{ ansible_date_time.iso8601 }}
+# Node: {{ ansible_hostname }}
+
+# Allow mesh-ops to manage Tailscale
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart tailscaled
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl start tailscaled
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl stop tailscaled
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl status tailscaled
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/tailscale *
+
+# Package management for Ubuntu/Debian
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/apt update
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/apt install -y *
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/apt-get update
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/apt-get install -y *
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/apt search *
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/apt show *
+
+# Container management
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/docker *
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/docker-compose *
+
+# Firewall management (UFW)
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/sbin/ufw *
+
+# Service management for hub services
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart nginx
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart syncthing@{{ mesh_user }}
+
+# Systemd user session management
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /bin/loginctl *
+{{ mesh_user }} ALL=(ALL) NOPASSWD: /usr/bin/systemctl --user *

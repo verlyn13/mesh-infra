@@ -1,0 +1,287 @@
+---
+# bootstrap-mesh-ops.yml - Bootstrap mesh-ops user environment across all nodes
+# This playbook sets up development tools and environment for the mesh-ops user
+
+- name: Bootstrap Mesh-Ops User Environment
+  hosts: all
+  become: yes
+  become_user: mesh-ops
+  vars:
+    mesh_user: mesh-ops
+    mesh_uid: 2000
+    mesh_gid: 2000
+    bootstrap_repo: "https://github.com/verlyn13/system-setup.git"
+    
+    # Development tools versions
+    tools:
+      uv_version: "latest"
+      bun_version: "latest"
+      mise_version: "latest"
+      
+  tasks:
+    - name: Ensure mesh-ops user exists
+      become: yes
+      become_user: root
+      user:
+        name: "{{ mesh_user }}"
+        uid: "{{ mesh_uid }}"
+        group: "{{ mesh_user }}"
+        shell: /bin/bash
+        comment: "Mesh Infrastructure Operations"
+        create_home: yes
+        state: present
+      tags: user
+
+    - name: Create directory structure
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - ~/.config
+        - ~/.config/systemd/user
+        - ~/.config/fish
+        - ~/.config/nvim
+        - ~/.local/bin
+        - ~/.local/share
+        - ~/.local/state
+        - ~/Projects
+        - ~/Projects/agents
+        - ~/Projects/shared
+        - ~/Projects/tools
+        - ~/Scripts
+        - ~/.cache
+      tags: directories
+
+    - name: Check if bootstrap reference exists
+      stat:
+        path: ~/.config/system-setup-reference
+      register: bootstrap_ref
+      tags: bootstrap
+
+    - name: Clone bootstrap repository for reference
+      git:
+        repo: "{{ bootstrap_repo }}"
+        dest: ~/.config/system-setup-reference
+        version: main
+        depth: 1
+      when: not bootstrap_ref.stat.exists
+      tags: bootstrap
+
+    # Development Tools Installation
+    - name: Install uv (Python package manager)
+      block:
+        - name: Check if uv is installed
+          command: which uv
+          register: uv_check
+          failed_when: false
+          changed_when: false
+
+        - name: Download and install uv
+          shell: |
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+          args:
+            creates: ~/.local/bin/uv
+          when: uv_check.rc != 0
+          environment:
+            CARGO_HOME: "{{ ansible_env.HOME }}/.cargo"
+            RUSTUP_HOME: "{{ ansible_env.HOME }}/.rustup"
+      tags: tools
+
+    - name: Install bun (JavaScript runtime)
+      block:
+        - name: Check if bun is installed
+          command: which bun
+          register: bun_check
+          failed_when: false
+          changed_when: false
+
+        - name: Download and install bun
+          shell: |
+            curl -fsSL https://bun.sh/install | bash
+          args:
+            creates: ~/.bun/bin/bun
+          when: bun_check.rc != 0
+      tags: tools
+
+    - name: Install mise (version manager)
+      block:
+        - name: Check if mise is installed
+          command: which mise
+          register: mise_check
+          failed_when: false
+          changed_when: false
+
+        - name: Download and install mise
+          shell: |
+            curl https://mise.run | sh
+          args:
+            creates: ~/.local/bin/mise
+          when: mise_check.rc != 0
+          environment:
+            MISE_INSTALL_PATH: "{{ ansible_env.HOME }}/.local/bin/mise"
+      tags: tools
+
+    # Shell configuration
+    - name: Configure shell environment
+      template:
+        src: mesh_ops_profile.j2
+        dest: ~/.profile
+        mode: '0644'
+        backup: yes
+      tags: shell
+
+    - name: Create profile.d directory
+      file:
+        path: ~/.profile.d
+        state: directory
+        mode: '0755'
+      tags: shell
+
+    - name: Set up tool-specific environment
+      copy:
+        dest: ~/.profile.d/tools.sh
+        mode: '0644'
+        content: |
+          #!/bin/bash
+          # Tool-specific environment variables
+          
+          # Python/uv
+          export UV_CACHE_DIR="$HOME/.cache/uv"
+          export PATH="$HOME/.local/bin:$PATH"
+          
+          # Bun
+          export BUN_INSTALL="$HOME/.bun"
+          export PATH="$BUN_INSTALL/bin:$PATH"
+          
+          # Mise
+          export MISE_DATA_DIR="$HOME/.local/share/mise"
+          if [ -f "$HOME/.local/bin/mise" ]; then
+              eval "$($HOME/.local/bin/mise activate bash)"
+          fi
+          
+          # Cargo/Rust (if installed)
+          export CARGO_HOME="$HOME/.cargo"
+          export RUSTUP_HOME="$HOME/.rustup"
+          [ -d "$CARGO_HOME/bin" ] && export PATH="$CARGO_HOME/bin:$PATH"
+          
+          # Go (if installed)
+          export GOPATH="$HOME/go"
+          [ -d "$GOPATH/bin" ] && export PATH="$GOPATH/bin:$PATH"
+      tags: shell
+
+    - name: Configure git for mesh-ops
+      blockinfile:
+        path: ~/.gitconfig
+        create: yes
+        mode: '0644'
+        block: |
+          [user]
+              name = Mesh-Ops Agent
+              email = mesh-ops@{{ ansible_hostname }}
+          [init]
+              defaultBranch = main
+          [pull]
+              rebase = false
+          [core]
+              editor = vim
+      tags: git
+
+    # SSH configuration
+    - name: Ensure .ssh directory exists
+      file:
+        path: ~/.ssh
+        state: directory
+        mode: '0700'
+      tags: ssh
+
+    - name: Generate SSH key for mesh-ops if not exists
+      openssh_keypair:
+        path: ~/.ssh/id_ed25519
+        type: ed25519
+        comment: "mesh-ops@{{ ansible_hostname }}"
+        mode: '0600'
+      register: ssh_key
+      tags: ssh
+
+    - name: Create SSH config for mesh nodes
+      copy:
+        dest: ~/.ssh/config
+        mode: '0644'
+        content: |
+          # Mesh Infrastructure Nodes
+          Host hetzner-hq hetzner
+              HostName 100.84.151.58
+              User mesh-ops
+              Port 22
+              IdentityFile ~/.ssh/id_ed25519
+          
+          Host laptop-hq laptop
+              HostName 100.84.2.8
+              User mesh-ops
+              Port 22
+              IdentityFile ~/.ssh/id_ed25519
+          
+          Host wsl-hq wsl wsl-fedora-kbc
+              HostName 100.88.131.44
+              User mesh-ops
+              Port 22
+              IdentityFile ~/.ssh/id_ed25519
+          
+          # Default settings
+          Host *
+              ServerAliveInterval 60
+              ServerAliveCountMax 3
+              StrictHostKeyChecking accept-new
+      tags: ssh
+
+    # Systemd user services setup (if systemd is available)
+    - name: Check if systemd is available
+      command: pidof systemd
+      register: systemd_check
+      failed_when: false
+      changed_when: false
+      tags: systemd
+
+    - name: Enable systemd linger for mesh-ops (if systemd available)
+      become: yes
+      become_user: root
+      command: loginctl enable-linger {{ mesh_user }}
+      when: systemd_check.rc == 0
+      failed_when: false
+      tags: systemd
+
+    - name: Create systemd user service templates directory
+      file:
+        path: ~/.config/systemd/user
+        state: directory
+        mode: '0755'
+      when: systemd_check.rc == 0
+      tags: systemd
+
+    # Final validation
+    - name: Validate tool installations
+      shell: |
+        echo "=== Tool Installation Status ==="
+        for tool in uv bun mise git; do
+          if command -v $tool > /dev/null 2>&1; then
+            echo "✓ $tool: $(command -v $tool)"
+          else
+            echo "✗ $tool: not found"
+          fi
+        done
+      register: validation_output
+      changed_when: false
+      tags: validate
+
+    - name: Display validation results
+      debug:
+        msg: "{{ validation_output.stdout_lines }}"
+      tags: validate
+
+    - name: Create setup completion marker
+      file:
+        path: ~/.mesh-ops-bootstrap-complete
+        state: touch
+        mode: '0644'
+      tags: validate
