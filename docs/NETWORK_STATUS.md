@@ -1,19 +1,21 @@
 # Mesh Network Status
 
-**Last Updated**: 2025-09-07  
-**Overall Status**: 🟢 FULLY OPERATIONAL
+**Last Updated**: 2025-10-18
+**Overall Status**: 🟡 DYNAMIC (Node availability varies)
 
 ## Network Overview
 
-All three nodes are successfully deployed and connected to the mesh network via Tailscale.
+Three-node mesh network with dynamic availability. Only Hetzner maintains 24/7 uptime - personal devices are powered on as needed.
 
 ## Node Status
 
-| Node | Hostname | Tailscale IP | Status | Location | Deployed |
-|------|----------|--------------|--------|----------|----------|
-| **Hetzner Hub** | hetzner-hq | 100.84.151.58 | ✅ Online | Germany (Cloud) | 2025-09-07 |
-| **Fedora Laptop** | laptop-hq | 100.84.2.8 | ✅ Online | Roaming | 2025-09-06 |
-| **WSL2** | wsl-fedora-kbc | 100.88.131.44 | ✅ Online | Alaska (University) | 2025-09-07 |
+| Node | Hostname | Tailscale IP | Status | Uptime Pattern | Deployed |
+|------|----------|--------------|--------|----------------|----------|
+| **Hetzner Hub** | hetzner-hq | 100.84.151.58 | ✅ Always-On | 24/7 | 2025-09-07 |
+| **Fedora Laptop** | laptop-hq | 100.84.2.8 | 🔄 Dynamic | On-demand | 2025-09-06 |
+| **WSL2** | wsl-fedora-kbc | 100.88.131.44 | 🔄 Dynamic | Work hours | 2025-09-07 |
+
+> **Live Status**: Node availability changes throughout the day. Check `tailscale status` for real-time connectivity.
 
 ## Network Configuration
 
@@ -94,26 +96,27 @@ graph TB
     style WSL fill:#FFE4B5
 ```
 
-## Next Steps
+## Node Availability Patterns
 
-1. **Join Laptop to Mesh**:
-   ```bash
-   ssh fedora-top
-   cd ~/Projects/verlyn13/mesh-infra
-   make init-day1
-   ```
+### Expected Uptime
+- **Hetzner (hetzner-hq)**: 24/7 always-on - serves as network backbone
+- **Laptop (laptop-hq)**: On-demand - typically offline outside active use
+- **WSL2 (wsl-fedora-kbc)**: Work hours - unavailable evenings/weekends
 
-2. **Join WSL to Mesh**:
-   ```bash
-   # In WSL2
-   cd ~/Projects/verlyn13/mesh-infra
-   make init-day1
-   ```
+### Service Resilience
+- **1 Node Active** (Hetzner only): Core services and remote access available
+- **2 Nodes Active**: Full development workflow possible
+- **3 Nodes Active**: Maximum functionality with cross-platform development
 
-3. **Verify Full Mesh**:
-   ```bash
-   make test
-   ```
+### Real-time Status Check
+```bash
+# Check live mesh status
+tailscale status
+
+# Ping specific nodes
+tailscale ping laptop-hq
+tailscale ping wsl-fedora-kbc
+```
 
 ## Troubleshooting
 

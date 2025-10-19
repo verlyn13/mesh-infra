@@ -22,11 +22,14 @@ Modern development happens across multiple machines, networks, and contexts. Thi
 
 ## 🚀 Deployment Status
 
-| Node | Status | Tailscale IP | Deployed |
-|------|--------|--------------|----------|
-| **Hetzner Hub** | ✅ Online | 100.84.151.58 | 2025-09-07 |
-| **Fedora Laptop** | ✅ Online | 100.84.2.8 | 2025-09-06 |
-| **WSL2** | ✅ Online | 100.88.131.44 | 2025-09-07 |
+| Node | Status | Tailscale IP | Deployed | Uptime |
+|------|--------|--------------|----------|---------|
+| **Hetzner Hub** | ✅ Always-On | 100.84.151.58 | 2025-09-07 | 24/7 |
+| **Fedora Laptop** | 🔄 Dynamic | 100.84.2.8 | 2025-09-06 | On-demand |
+| **WSL2** | 🔄 Dynamic | 100.88.131.44 | 2025-09-07 | Work hours |
+
+> **Note**: Only Hetzner maintains 24/7 uptime. Personal devices (laptop/WSL2) are powered on as needed.
+> The mesh is designed to be resilient to nodes going offline - services gracefully degrade.
 
 **[View Live Network Status →](docs/NETWORK_STATUS.md)**
 
@@ -169,6 +172,31 @@ make test         # Verify connectivity
 - **Network**: Default deny, explicit allow rules
 - **Secrets**: Managed via gopass/Infisical
 - **Audit**: All operations logged to Hetzner
+
+## 🔄 Mesh Resilience
+
+The infrastructure is designed to handle dynamic node availability:
+
+### Node Availability Patterns
+- **Hetzner (hub-hq)**: 24/7 always-on - serves as network backbone
+- **Laptop (laptop-hq)**: On-demand - powers off when not in use
+- **WSL2 (wsl-hq)**: Work hours only - unavailable evenings/weekends
+
+### Graceful Degradation
+- **Single Node**: Hetzner alone provides core services and remote access
+- **Two Nodes**: Full development workflow available (Hetzner + any workstation)
+- **Three Nodes**: Maximum capability with cross-platform development
+
+### Service Distribution
+- **Critical Services**: Deployed only on Hetzner (always available)
+- **Development Tools**: Replicated across all active nodes
+- **File Sync**: Intelligent queuing when nodes offline (Phase 3)
+- **Secrets**: Accessible from any node via gopass
+
+### Failure Scenarios
+- **Laptop offline**: Development continues on WSL2 or Hetzner directly
+- **WSL2 offline**: No impact on personal projects (laptop + Hetzner)
+- **Hetzner offline**: Emergency SSH via laptop:2222 or WSL2 bridge
 
 ## 🗺️ Roadmap
 

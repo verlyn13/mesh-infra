@@ -14,6 +14,7 @@ nodes:
     ssh_port: 2222
     role: [hub, headquarters, server, exit_node]
     always_on: true
+    uptime_expectation: "24/7"
     status: deployed
     deployed_date: 2025-09-07
   laptop:
@@ -22,12 +23,18 @@ nodes:
     tailscale_ipv4: 100.84.2.8
     role: [workstation, roaming]
     roaming: true
+    always_on: false
+    uptime_expectation: "on-demand"
+    uptime_notes: "Personal laptop - powered off when not in use"
     status: deployed
     deployed_date: 2025-09-06
   wsl:
     hostname: wsl-fedora-kbc
     tailscale_hostname: wsl-fedora-kbc
     windows_host: KBC-JJOHNSON47
+    always_on: false
+    uptime_expectation: "work-hours"
+    uptime_notes: "Work PC - available during business hours only"
     tailscale_ipv4: 100.88.131.44
     role: [workstation, windows_dev_env, bridge_node]
     constraints: [no_windows_admin, wsl2, work_pc]
