@@ -1,14 +1,15 @@
-# Three-Node (for now) Mesh Infrastructure
+# Dynamic Mesh Infrastructure
 
-A personal platform-as-code infrastructure connecting a Hetzner cloud server, Fedora laptop, and WSL2 development environment through a secure mesh network, designed for seamless development workflows and AI-assisted operations.
+A personal platform-as-code infrastructure connecting multiple devices through a secure mesh network, designed for seamless development workflows and AI-assisted operations. The mesh scales dynamically as nodes are added or removed.
 
 ## 🎯 Project Purpose
 
-This project creates a unified, always-accessible personal computing environment across three distinct systems:
+This project creates a unified, always-accessible personal computing environment across multiple systems:
 
 - **Hetzner Cloud Server** (Ubuntu 24.04) - Always-on hub in Germany
-- **Fedora Laptop** (ThinkPad) - Roaming primary workstation  
+- **Fedora Laptop** (ThinkPad) - Roaming primary workstation
 - **Fedora WSL2** - Windows-constrained work environment
+- **MacBook Pro** (macOS) - Development and creative work
 
 ### Why This Exists
 
@@ -27,9 +28,10 @@ Modern development happens across multiple machines, networks, and contexts. Thi
 | **Hetzner Hub** | ✅ Always-On | 100.84.151.58 | 2025-09-07 | 24/7 |
 | **Fedora Laptop** | 🔄 Dynamic | 100.84.2.8 | 2025-09-06 | On-demand |
 | **WSL2** | 🔄 Dynamic | 100.88.131.44 | 2025-09-07 | Work hours |
+| **MacBook Pro** | ⏳ Pending | TBD | 2025-10-18 | On-demand |
 
-> **Note**: Only Hetzner maintains 24/7 uptime. Personal devices (laptop/WSL2) are powered on as needed.
-> The mesh is designed to be resilient to nodes going offline - services gracefully degrade.
+> **Note**: Only Hetzner maintains 24/7 uptime. Personal devices are powered on as needed.
+> The mesh dynamically adapts to node availability - services gracefully scale up/down.
 
 **[View Live Network Status →](docs/NETWORK_STATUS.md)**
 
@@ -179,13 +181,15 @@ The infrastructure is designed to handle dynamic node availability:
 
 ### Node Availability Patterns
 - **Hetzner (hub-hq)**: 24/7 always-on - serves as network backbone
-- **Laptop (laptop-hq)**: On-demand - powers off when not in use
-- **WSL2 (wsl-hq)**: Work hours only - unavailable evenings/weekends
+- **Personal Devices**: On-demand availability based on usage patterns
+  - **Laptop (laptop-hq)**: Powers off when not in use
+  - **WSL2 (wsl-hq)**: Work hours only - unavailable evenings/weekends
+  - **MacBook (macbook-hq)**: Development and creative work sessions
 
-### Graceful Degradation
+### Graceful Scaling
 - **Single Node**: Hetzner alone provides core services and remote access
-- **Two Nodes**: Full development workflow available (Hetzner + any workstation)
-- **Three Nodes**: Maximum capability with cross-platform development
+- **Multiple Nodes**: Enhanced development workflow with cross-platform capabilities
+- **Dynamic Scaling**: Services automatically adapt to available node count
 
 ### Service Distribution
 - **Critical Services**: Deployed only on Hetzner (always available)
@@ -194,14 +198,14 @@ The infrastructure is designed to handle dynamic node availability:
 - **Secrets**: Accessible from any node via gopass
 
 ### Failure Scenarios
-- **Laptop offline**: Development continues on WSL2 or Hetzner directly
-- **WSL2 offline**: No impact on personal projects (laptop + Hetzner)
-- **Hetzner offline**: Emergency SSH via laptop:2222 or WSL2 bridge
+- **Any workstation offline**: Development continues on remaining active nodes
+- **Multiple workstations offline**: Core services remain available via Hetzner
+- **Hetzner offline**: Emergency SSH available via any active workstation:2222
 
 ## 🗺️ Roadmap
 
-### ✅ Phase 1: Network Foundation (100% Complete)
-- Mesh VPN connectivity (3/3 nodes online)
+### ✅ Phase 1: Network Foundation (Complete)
+- Mesh VPN connectivity (dynamic node count)
 - Emergency access methods (documented and tested)
 - Basic security policies (active)
 

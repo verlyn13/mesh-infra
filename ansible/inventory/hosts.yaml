@@ -46,7 +46,20 @@ all:
           tailscale_userspace_mode: true
           corporate_network: true
           systemd_limited: true
-      
+
+        macbook.hq:
+          ansible_host: pending  # Will be updated after Tailscale deployment
+          device_type: macbook
+          os: darwin
+          architecture: arm64
+          location: roaming
+          expected_uptime: 40
+          ansible_connection: ssh
+          # macOS-specific configurations
+          homebrew_available: true
+          gui_environment: true
+          development_tools: xcode
+
       vars:
         # Workstation-specific variables
         development_environment: true

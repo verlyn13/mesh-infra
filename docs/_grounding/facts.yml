@@ -1,7 +1,7 @@
 version: 1
-project: three_node_mesh_infrastructure
+project: dynamic_mesh_infrastructure
 approach: platform_as_code
-last_updated: 2025-09-07
+last_updated: 2025-10-18
 owner: verlyn13
 
 # Immutable System Facts
@@ -44,6 +44,19 @@ nodes:
       - tailscale_userspace_networking
       - limited_sudo_access
       - corporate_network_restrictions
+  macbook:
+    hostname: macpro.local
+    tailscale_hostname: macbook-hq
+    lan_ipv4: 192.168.0.200
+    role: [workstation, development, roaming]
+    os: darwin
+    architecture: arm64
+    always_on: false
+    uptime_expectation: "on-demand"
+    uptime_notes: "Personal MacBook - used for development and creative work"
+    status: pending
+    target_deployment: 2025-10-18
+    ssh_alias: [mac, macpro]
 
 network:
   internal_domain: hq
