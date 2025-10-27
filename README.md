@@ -28,12 +28,12 @@ Modern development happens across multiple machines, networks, and contexts. Thi
 | **Hetzner Hub** | ✅ Always-On | 100.84.151.58 | 2025-09-07 | 24/7 |
 | **Fedora Laptop** | 🔄 Dynamic | 100.84.2.8 | 2025-09-06 | On-demand |
 | **WSL2** | 🔄 Dynamic | 100.88.131.44 | 2025-09-07 | Work hours |
-| **MacBook Pro** | ⏳ Pending | TBD | 2025-10-18 | On-demand |
+| **MacBook Pro** | ✅ Deployed | 100.122.121.37 | 2025-10-18 | On-demand |
 
 > **Note**: Only Hetzner maintains 24/7 uptime. Personal devices are powered on as needed.
 > The mesh dynamically adapts to node availability - services gracefully scale up/down.
 
-**[View Live Network Status →](docs/NETWORK_STATUS.md)**
+**[View Live Infrastructure Status →](docs/STATUS.md)**
 
 ## 🏗️ Architecture
 
@@ -59,14 +59,14 @@ Modern development happens across multiple machines, networks, and contexts. Thi
                  │  WireGuard Crypto   │
                  └──────────┬──────────┘
                             │
-            ┌───────────────┴───────────────┐
-            │                               │
-    ┌──────────────────┐           ┌──────────────────┐
-    │  Fedora Laptop   │           │   Fedora WSL2    │
-    │  (laptop-hq)     │           │ (wsl-fedora-kbc) │
-    │  100.84.2.8      │           │  100.88.131.44   │
-    │  ✅ DEPLOYED     │           │  ✅ DEPLOYED     │
-    └──────────────────┘           └──────────────────┘
+        ┌───────────────────┼───────────────────┐
+        │                   │                   │
+┌──────────────────┐  ┌──────────────┐  ┌──────────────────┐
+│  Fedora Laptop   │  │ MacBook Pro  │  │   Fedora WSL2    │
+│  (laptop-hq)     │  │ (macbook-hq) │  │ (wsl-fedora-kbc) │
+│  100.84.2.8      │  │100.122.121.37│  │  100.88.131.44   │
+│  ✅ DEPLOYED     │  │ ✅ DEPLOYED  │  │  ✅ DEPLOYED     │
+└──────────────────┘  └──────────────┘  └──────────────────┘
 ```
 
 ### Network Design
@@ -254,12 +254,14 @@ If the mesh network fails:
 
 ## 📚 Documentation
 
+- **[Infrastructure Status](docs/STATUS.md)** - Current system health and node status
+- **[Documentation Index](docs/README.md)** - Complete documentation navigation
 - [Day 1 Setup](docs/_grounding/Day1.md) - Initial bootstrap procedures
-- [Network Reference](docs/_grounding/network-reference.yaml) - System specifications
 - [Node Addition Guide](docs/NODE_ADDITION_GUIDE.md) - Procedures for adding new nodes
-- [Phase 3 Readiness](docs/PHASE3_READINESS.md) - File synchronization planning
+- [Ansible Setup Guide](docs/ANSIBLE_SETUP_GUIDE.md) - Configuration management
 - [Escape Hatches](infra/ESCAPE_HATCHES.md) - Emergency procedures
 - [Architecture Decisions](docs/_grounding/adr/) - Design rationale
+- [System Facts](docs/_grounding/facts.yml) - Source of truth (read-only)
 
 ## 🤝 Contributing
 
@@ -282,9 +284,10 @@ MIT - This is personal infrastructure code shared for educational purposes.
 
 ---
 
-**Project Status**: 🟢 Phase 2 Complete - Configuration Management Operational  
-**Primary Contact**: verlyn13  
-**Last Updated**: 2025-09-07
+**Project Status**: 🟢 Phase 2 Complete - Configuration Management Operational
+**Active Nodes**: 4/4 Deployed (2-3 online at any time due to dynamic availability)
+**Primary Contact**: verlyn13
+**Last Updated**: 2025-10-27
 ```
 
 This README:

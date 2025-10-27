@@ -1,5 +1,16 @@
 # Ansible Configuration Management Setup
 
+**Last Updated**: 2025-10-27
+**Status**: ✅ Operational - All 4 nodes managed via Ansible
+
+> **Related Documentation**: [Infrastructure Status](STATUS.md) | [Node Addition Guide](NODE_ADDITION_GUIDE.md) | [Documentation Index](README.md)
+
+## Overview
+
+This guide covers the Ansible configuration management setup for the mesh infrastructure. All 4 nodes (Hetzner, Laptop, WSL2, MacBook) are currently managed via Ansible from the Hetzner control node.
+
+**Phase 2 Status**: Complete - Configuration management operational across all nodes
+
 ## Step 1: Install Ansible on Hetzner (Control Node)
 
 ```bash

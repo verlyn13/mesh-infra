@@ -47,6 +47,7 @@ nodes:
   macbook:
     hostname: macpro.local
     tailscale_hostname: macbook-hq
+    tailscale_ipv4: 100.122.121.37
     lan_ipv4: 192.168.0.200
     role: [workstation, development, roaming]
     os: darwin
@@ -54,8 +55,8 @@ nodes:
     always_on: false
     uptime_expectation: "on-demand"
     uptime_notes: "Personal MacBook - used for development and creative work"
-    status: pending
-    target_deployment: 2025-10-18
+    status: deployed
+    deployed_date: 2025-10-18
     ssh_alias: [mac, macpro]
 
 network:

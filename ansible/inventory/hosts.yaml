@@ -48,7 +48,7 @@ all:
           systemd_limited: true
 
         macbook.hq:
-          ansible_host: pending  # Will be updated after Tailscale deployment
+          ansible_host: 100.122.121.37  # Tailscale IP - deployed 2025-10-18
           device_type: macbook
           os: darwin
           architecture: arm64

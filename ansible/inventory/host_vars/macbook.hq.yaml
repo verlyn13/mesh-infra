@@ -1,0 +1,64 @@
+---
+# MacBook Development Node - Configuration
+# Role: Primary creative and development workstation (macOS)
+
+# Node-specific Syncthing settings
+syncthing_device_name: "macbook-pro"
+syncthing_gui_address: "127.0.0.1:8384"  # Local access only (mobile device)
+
+# Storage configuration (ample storage on MacBook)
+syncthing_data_dir: "/Users/verlyn13/sync"
+
+# Sync folder configuration - optimized for development and creative work
+syncthing_folders:
+  development:
+    path: "/Users/verlyn13/sync/development"
+    type: "sendreceive"
+    description: "Active development projects"
+    rescan_interval: 1800  # More frequent for active development
+
+  documents:
+    path: "/Users/verlyn13/sync/documents"
+    type: "sendreceive"
+    description: "Personal documents and creative work"
+    rescan_interval: 3600
+
+  config:
+    path: "/Users/verlyn13/sync/config"
+    type: "sendreceive"
+    description: "Dotfiles and configurations"
+    rescan_interval: 3600
+
+# macOS-specific settings
+homebrew_prefix: "/opt/homebrew"  # Apple Silicon
+package_manager: "homebrew"
+ansible_python_interpreter: "/opt/homebrew/bin/python3"
+
+# Versioning settings for MacBook
+syncthing_versioning_enabled: true
+syncthing_versioning_type: "staggered"
+syncthing_versioning_params:
+  maxAge: "365"  # Keep versions for 1 year
+  cleanInterval: "3600"
+  versionsPath: ".stversions"
+
+# Performance settings (macOS optimization)
+syncthing_max_concurrent_scans: 4  # MacBook has good performance
+syncthing_max_file_change_rate: 100
+
+# macOS-specific service settings
+syncthing_systemd_user_mode: false  # macOS uses launchd, not systemd
+syncthing_service_type: "launchd"
+
+# Development tools configuration
+development_tools:
+  - xcode-command-line-tools
+  - homebrew
+  - mise
+  - chezmoi
+
+# Notes:
+# - SSH Remote Login needs to be enabled manually via System Settings
+# - Tailscale deployed 2025-10-18 with IP 100.122.121.37
+# - Uses chezmoi for dotfile management (see ~/Development/personal/system-setup-update)
+# - mise manages language runtimes (Node, Python, Go, Rust, etc.)

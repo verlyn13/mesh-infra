@@ -1,14 +1,14 @@
 {
-  "timestamp": "2025-09-07T12:07:44.152767",
+  "timestamp": "2025-10-27T08:55:04.508381",
   "git": {
-    "head": "a4e10680",
+    "head": "068fe32b",
     "branch": "main",
     "dirty": true
   },
   "infrastructure": {
     "scripts": 2,
     "policies": 1,
-    "backups": true
+    "backups": false
   },
   "nodes": {
     "configured": [
